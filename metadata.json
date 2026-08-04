@@ -1,0 +1,6 @@
+{
+  "name": "Bible Quiz World",
+  "description": "A mobile-first Bible quiz application featuring scripture reference questions, dark mode, and Material Design 3 UI.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

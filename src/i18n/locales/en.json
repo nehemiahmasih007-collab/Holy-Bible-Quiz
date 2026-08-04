@@ -1,0 +1,81 @@
+{
+  "common": {
+    "app_name": "Bible Quiz World",
+    "welcome": "Welcome to Bible Quiz World",
+    "start_quiz": "Start Quiz",
+    "settings": "Settings",
+    "admin": "Admin",
+    "back": "Back",
+    "loading": "Loading...",
+    "language": "Language"
+  },
+  "home": {
+    "select_category": "Select Category",
+    "all_categories": "All Categories",
+    "stats": "Statistics",
+    "total_quizzes": "Total Quizzes",
+    "best_score": "Best Score",
+    "daily_quote": "Daily Scripture Encouragement",
+    "psalm_119_105": "\"Your word is a lamp to my feet and a light to my path.\""
+  },
+  "settings": {
+    "title": "Quiz Settings",
+    "dark_mode": "Dark Mode",
+    "sound": "Sound Effects",
+    "question_count": "Number of Questions",
+    "reset_stats": "Reset Statistics",
+    "feedback": "Send Feedback",
+    "close": "Close"
+  },
+  "feedback": {
+    "title": "Share Your Feedback",
+    "rating": "Rate your experience",
+    "category": "Feedback Category",
+    "comments": "Tell us more...",
+    "placeholder": "Write your comments here...",
+    "submit": "Submit Feedback",
+    "success": "Thank you for your feedback!",
+    "validation_error": "Please enter your comments before submitting.",
+    "categories": {
+      "bug": "Bug Report",
+      "feature": "Feature Request",
+      "general": "General Feedback",
+      "other": "Other"
+    }
+  },
+  "quiz": {
+    "question": "Question",
+    "next": "Next",
+    "previous": "Previous",
+    "submit": "Submit Quiz",
+    "exit": "Exit Quiz",
+    "continue": "Continue Quiz",
+    "confirm_exit": "Are you sure you want to exit the quiz?"
+  },
+  "result": {
+    "title": "Quiz Results",
+    "score": "Your Score",
+    "correct": "Correct Answers",
+    "wrong": "Wrong Answers",
+    "restart": "Restart Quiz",
+    "go_home": "Back to Home"
+  },
+  "categories": {
+    "all": "All Scripture",
+    "old_testament": "Old Testament",
+    "gospels": "The Gospels",
+    "wisdom_psalms": "Wisdom & Psalms",
+    "prophets": "Major & Minor Prophets",
+    "epistles": "Epistles & Acts",
+    "miracles_parables": "Miracles & Parables"
+  },
+  "category_desc": {
+    "all": "Questions from across both the Old and New Testaments",
+    "old_testament": "Genesis, Exodus, Kings, and Historical Books",
+    "gospels": "Matthew, Mark, Luke, and John",
+    "wisdom_psalms": "Psalms, Proverbs, Job, and Ecclesiastes",
+    "prophets": "Isaiah, Jeremiah, Daniel, Jonah, and others",
+    "epistles": "Acts of the Apostles and Epistles of Paul and others",
+    "miracles_parables": "The teachings and miracles of Jesus"
+  }
+}
