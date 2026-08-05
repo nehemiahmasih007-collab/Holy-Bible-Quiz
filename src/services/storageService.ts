@@ -20,7 +20,7 @@ const KEYS = {
 };
 
 export const DEFAULT_APP_CONFIG: AppConfig = {
-  appName: 'Bible Quiz World',
+  appName: 'Bible Quiz',
   appLogo: 'BookOpen',
   primaryColor: '#2563eb',
   secondaryColor: '#f59e0b',
@@ -33,11 +33,11 @@ export const DEFAULT_APP_CONFIG: AppConfig = {
 class StorageService {
   // --- QUESTIONS ---
   async getQuestionsAsync(category: string = 'all'): Promise<Question[]> {
-    return await databaseService.getQuestions(category);
+    return databaseService.getQuestions(category);
   }
 
   getQuestions(): Question[] {
-    // Legacy sync fallback: returns cached or default questions, but components use async hooks
+    // Legacy sync fallback: returns empty list for compatibility
     return [];
   }
 
@@ -68,11 +68,10 @@ class StorageService {
     if (!q) return null;
 
     const { id: _oldId, ...rest } = q;
-    const duplicated = await this.addQuestionAsync({
+    return this.addQuestionAsync({
       ...rest,
       question: `${rest.question} (Copy)`,
     });
-    return duplicated;
   }
 
   async resetQuestionsToDefaultAsync(): Promise<Question[]> {
@@ -86,7 +85,7 @@ class StorageService {
 
   // --- CATEGORIES ---
   async getCategoriesAsync(): Promise<Category[]> {
-    return await databaseService.getCategories();
+    return databaseService.getCategories();
   }
 
   async addCategoryAsync(cat: Omit<Category, 'id'>): Promise<Category> {
@@ -125,7 +124,7 @@ class StorageService {
 
   // --- FEATURE FLAGS ---
   async getFeaturesAsync(): Promise<FeatureFlag[]> {
-    return await databaseService.getFeatures();
+    return databaseService.getFeatures();
   }
 
   async toggleFeatureAsync(id: string, enabled: boolean): Promise<void> {
@@ -155,9 +154,9 @@ class StorageService {
       primaryColor: settings.primaryColor || DEFAULT_APP_CONFIG.primaryColor,
       secondaryColor: settings.secondaryColor || DEFAULT_APP_CONFIG.secondaryColor,
       defaultDarkMode: settings.darkMode,
-      animationsEnabled: settings.animationsEnabled ?? true,
+      animationsEnabled: settings.animationsEnabled ?? DEFAULT_APP_CONFIG.animationsEnabled,
       soundEnabled: settings.soundEnabled,
-      defaultLanguage: settings.language || 'English',
+      defaultLanguage: settings.language || DEFAULT_APP_CONFIG.defaultLanguage,
     };
   }
 
@@ -193,7 +192,7 @@ class StorageService {
     try {
       const logs = this.getAdminLogs();
       const newLog: AdminLog = {
-        id: `log_${Date.now()}`,
+        id: `log_${Date.now()}_${Math.random().toString(36).substr(2, 4)}`,
         action,
         details,
         timestamp: new Date().toLocaleString(),
@@ -225,14 +224,23 @@ class StorageService {
     const ext = file.name.split('.').pop()?.toLowerCase();
     let res;
 
-    if (ext === 'csv') {
-      res = await importService.importCSV(file);
-    } else if (ext === 'json') {
-      res = await importService.importJSON(file);
-    } else if (ext === 'xlsx' || ext === 'xls') {
-      res = await importService.importExcel(file);
-    } else {
-      return { success: false, count: 0, error: 'Unsupported file format. Please upload .csv, .json, or .xlsx file.' };
+    switch (ext) {
+      case 'csv':
+        res = await importService.importCSV(file);
+        break;
+      case 'json':
+        res = await importService.importJSON(file);
+        break;
+      case 'xlsx':
+      case 'xls':
+        res = await importService.importExcel(file);
+        break;
+      default:
+        return {
+          success: false,
+          count: 0,
+          error: 'Unsupported file format. Please upload a .csv, .json, or .xlsx file.',
+        };
     }
 
     if (res.success) {
@@ -242,13 +250,13 @@ class StorageService {
         `Successfully imported ${res.importedCount} questions (${res.duplicatesCount} duplicates skipped)`
       );
       return { success: true, count: res.importedCount };
-    } else {
-      return {
-        success: false,
-        count: 0,
-        error: res.errors.join('\n') || 'Import failed or contained no valid non-duplicate questions.',
-      };
     }
+
+    return {
+      success: false,
+      count: 0,
+      error: res.errors.join('\n') || 'Import failed or contained no valid non-duplicate questions.',
+    };
   }
 
   async createBackupAsync(name: string): Promise<void> {

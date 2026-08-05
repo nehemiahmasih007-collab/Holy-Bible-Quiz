@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { motion, AnimatePresence } from 'motion/react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
 import {
   X,
@@ -20,6 +20,8 @@ interface FeedbackModalProps {
 
 type FeedbackCategory = 'bug' | 'feature' | 'general' | 'other';
 
+const CATEGORIES: FeedbackCategory[] = ['bug', 'feature', 'general', 'other'];
+
 export const FeedbackModal: React.FC<FeedbackModalProps> = ({
   settings,
   onClose,
@@ -30,8 +32,6 @@ export const FeedbackModal: React.FC<FeedbackModalProps> = ({
   const [comments, setComments] = useState<string>('');
   const [isSubmitted, setIsSubmitted] = useState<boolean>(false);
   const [error, setError] = useState<string>('');
-
-  const categories: FeedbackCategory[] = ['bug', 'feature', 'general', 'other'];
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -48,17 +48,15 @@ export const FeedbackModal: React.FC<FeedbackModalProps> = ({
       timestamp: new Date().toISOString(),
     });
 
-    // Example of mailto integration
-    // const mailtoUrl = `mailto:support@biblequizworld.app?subject=${category} Feedback&body=Rating: ${rating}/5%0D%0A%0D%0AComments: ${comments}`;
-    // window.open(mailtoUrl);
-
     soundFx.playCorrect(settings.soundEnabled);
     setIsSubmitted(true);
     setError('');
 
-    setTimeout(() => {
+    const timer = setTimeout(() => {
       onClose();
     }, 2500);
+
+    return () => clearTimeout(timer);
   };
 
   return (
@@ -67,6 +65,7 @@ export const FeedbackModal: React.FC<FeedbackModalProps> = ({
         initial={{ scale: 0.9, opacity: 0 }}
         animate={{ scale: 1, opacity: 1 }}
         exit={{ scale: 0.9, opacity: 0 }}
+        transition={{ duration: 0.2 }}
         className="w-full max-w-md bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-6 shadow-2xl flex flex-col gap-5 relative overflow-hidden"
       >
         {/* Success Overlay */}
@@ -75,6 +74,7 @@ export const FeedbackModal: React.FC<FeedbackModalProps> = ({
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
               className="absolute inset-0 bg-white dark:bg-slate-900 z-10 flex flex-col items-center justify-center text-center p-6"
             >
               <div className="w-20 h-20 bg-emerald-100 dark:bg-emerald-900/40 text-emerald-600 dark:text-emerald-400 rounded-full flex items-center justify-center mb-4">
@@ -100,7 +100,8 @@ export const FeedbackModal: React.FC<FeedbackModalProps> = ({
 
           <button
             onClick={onClose}
-            className="p-2 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-500 hover:text-slate-900 dark:hover:text-white transition"
+            type="button"
+            className="p-2 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-500 hover:text-slate-900 dark:hover:text-white transition cursor-pointer"
           >
             <X className="w-5 h-5" />
           </button>
@@ -121,7 +122,7 @@ export const FeedbackModal: React.FC<FeedbackModalProps> = ({
                     setRating(star);
                     soundFx.playClick(settings.soundEnabled);
                   }}
-                  className="transition-transform active:scale-90"
+                  className="transition-transform active:scale-90 cursor-pointer"
                 >
                   <Star
                     className={`w-8 h-8 ${
@@ -144,12 +145,12 @@ export const FeedbackModal: React.FC<FeedbackModalProps> = ({
               <select
                 value={category}
                 onChange={(e) => {
-                    setCategory(e.target.value as FeedbackCategory);
-                    soundFx.playClick(settings.soundEnabled);
+                  setCategory(e.target.value as FeedbackCategory);
+                  soundFx.playClick(settings.soundEnabled);
                 }}
-                className="w-full p-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl text-sm text-slate-900 dark:text-white appearance-none focus:outline-none focus:ring-2 focus:ring-indigo-500/50"
+                className="w-full p-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl text-sm text-slate-900 dark:text-white appearance-none focus:outline-none focus:ring-2 focus:ring-indigo-500/50 cursor-pointer"
               >
-                {categories.map((cat) => (
+                {CATEGORIES.map((cat) => (
                   <option key={cat} value={cat}>
                     {t(`feedback.categories.${cat}`)}
                   </option>
@@ -166,7 +167,10 @@ export const FeedbackModal: React.FC<FeedbackModalProps> = ({
             </label>
             <textarea
               value={comments}
-              onChange={(e) => setComments(e.target.value)}
+              onChange={(e) => {
+                setComments(e.target.value);
+                if (error) setError('');
+              }}
               placeholder={t('feedback.placeholder')}
               rows={4}
               className={`w-full p-3.5 bg-slate-50 dark:bg-slate-800 border ${
@@ -184,7 +188,7 @@ export const FeedbackModal: React.FC<FeedbackModalProps> = ({
           {/* Submit Button */}
           <button
             type="submit"
-            className="w-full mt-2 py-4 bg-gradient-to-r from-indigo-600 to-blue-700 text-white font-bold rounded-2xl shadow-lg shadow-indigo-500/25 flex items-center justify-center gap-2 hover:brightness-110 active:scale-98 transition"
+            className="w-full mt-2 py-4 bg-gradient-to-r from-indigo-600 to-blue-700 text-white font-bold rounded-2xl shadow-lg shadow-indigo-500/25 flex items-center justify-center gap-2 hover:brightness-110 active:scale-98 transition cursor-pointer"
           >
             <Send className="w-4 h-4" />
             {t('feedback.submit')}

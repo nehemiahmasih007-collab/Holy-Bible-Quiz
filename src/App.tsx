@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { AnimatePresence } from 'motion/react';
+import React, { useState, useEffect, useCallback } from 'react';
+import { AnimatePresence } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
 import {
   AppScreen,
@@ -22,6 +22,7 @@ import { ResultScreen } from './components/ResultScreen';
 import { SettingsModal } from './components/SettingsModal';
 import { FeedbackModal } from './components/FeedbackModal';
 import { FuturePreviewModal } from './components/FuturePreviewModal';
+import { LanguageSelectModal } from './components/LanguageSelectModal';
 import { AdminLogin } from './admin/AdminLogin';
 import { AdminDashboard } from './admin/AdminDashboard';
 
@@ -49,13 +50,16 @@ export default function App() {
   const [isSettingsOpen, setIsSettingsOpen] = useState<boolean>(false);
   const [isFeedbackOpen, setIsFeedbackOpen] = useState<boolean>(false);
   const [futureFeatureModal, setFutureFeatureModal] = useState<string | null>(null);
+  const [showLangModal, setShowLangModal] = useState<boolean>(
+    !localStorage.getItem('bible_quiz_selected_language')
+  );
 
   // Dynamic DB Reactive State
   const [questionsList, setQuestionsList] = useState<Question[]>([]);
   const [categoriesList, setCategoriesList] = useState<Category[]>([]);
   const [featuresList, setFeaturesList] = useState<FeatureFlag[]>([]);
   const [appConfig, setAppConfig] = useState<AppConfig>({
-    appName: 'Bible Quiz World',
+    appName: 'Bible Quiz',
     appLogo: 'BookOpen',
     primaryColor: '#1e3a8a',
     secondaryColor: '#f59e0b',
@@ -66,19 +70,24 @@ export default function App() {
   });
   const [adminLogs, setAdminLogs] = useState<AdminLog[]>([]);
 
-  const loadDataFromDatabase = async () => {
-    const q = await storageService.getQuestionsAsync();
-    const c = await storageService.getCategoriesAsync();
-    const f = await storageService.getFeaturesAsync();
-    const cfg = await storageService.getAppConfigAsync();
-    const logs = storageService.getAdminLogs();
+  // Load Database Data
+  const loadDataFromDatabase = useCallback(async () => {
+    try {
+      const q = await storageService.getQuestionsAsync();
+      const c = await storageService.getCategoriesAsync();
+      const f = await storageService.getFeaturesAsync();
+      const cfg = await storageService.getAppConfigAsync();
+      const logs = storageService.getAdminLogs();
 
-    setQuestionsList(q);
-    setCategoriesList(c);
-    setFeaturesList(f);
-    setAppConfig(cfg);
-    setAdminLogs(logs);
-  };
+      setQuestionsList(q || []);
+      setCategoriesList(c || []);
+      setFeaturesList(f || []);
+      if (cfg) setAppConfig(cfg);
+      if (logs) setAdminLogs(logs);
+    } catch (error) {
+      console.error('Error loading data from database:', error);
+    }
+  }, []);
 
   useEffect(() => {
     loadDataFromDatabase();
@@ -87,7 +96,7 @@ export default function App() {
       loadDataFromDatabase();
     });
     return () => unsubscribe();
-  }, []);
+  }, [loadDataFromDatabase]);
 
   // Load Settings from localStorage
   const [settings, setSettings] = useState<QuizSettings>(() => {
@@ -129,20 +138,20 @@ export default function App() {
   useEffect(() => {
     try {
       localStorage.setItem('bible_quiz_settings', JSON.stringify(settings));
-    } catch {
-      // Storage fallback
+    } catch (err) {
+      console.warn('LocalStorage save failed:', err);
     }
   }, [settings]);
 
   useEffect(() => {
     try {
       localStorage.setItem('bible_quiz_stats', JSON.stringify(stats));
-    } catch {
-      // Storage fallback
+    } catch (err) {
+      console.warn('LocalStorage save failed:', err);
     }
   }, [stats]);
 
-  // Handle Dark Mode Class on document body / html
+  // Handle Dark Mode Class on HTML document element
   useEffect(() => {
     if (settings.darkMode) {
       document.documentElement.classList.add('dark');
@@ -167,12 +176,19 @@ export default function App() {
       pool = await storageService.getQuestionsAsync();
     }
 
-    if (selectedCategory !== 'all') {
+    // Filter by current UI language
+    const currentLang = i18n.language || 'en';
+    const langFiltered = pool.filter((q) => q.language === currentLang);
+
+    // Fallback to English if no matching questions exist for the language
+    pool = langFiltered.length > 0 ? langFiltered : pool.filter((q) => q.language === 'en' || !q.language);
+
+    if (selectedCategory && selectedCategory !== 'all') {
       const filtered = pool.filter((q) => q.category === selectedCategory);
       if (filtered.length > 0) pool = filtered;
     }
 
-    // Fisher-Yates Shuffle
+    // Fisher-Yates Shuffle algorithm
     const shuffled = [...pool].sort(() => Math.random() - 0.5);
     const selectedQuestions = shuffled.slice(0, Math.min(settings.questionCount, shuffled.length));
 
@@ -215,7 +231,7 @@ export default function App() {
     });
 
     const total = quizQuestions.length;
-    const scorePct = Math.round((correct / total) * 100);
+    const scorePct = total > 0 ? Math.round((correct / total) * 100) : 0;
     const earnedXp = correct * 10 + (scorePct >= 80 ? 50 : 0);
     const elapsedSeconds = Math.max(1, Math.round((Date.now() - quizStartTime) / 1000));
     setQuizTimeSpent(elapsedSeconds);
@@ -230,7 +246,7 @@ export default function App() {
       streakDays: Math.max(1, prev.streakDays),
     }));
 
-    // Record history entry in IndexedDB
+    // Record history entry in IndexedDB / Storage
     await databaseService.addQuizHistory({
       category: selectedCategory,
       totalQuestions: total,
@@ -339,7 +355,21 @@ export default function App() {
         )}
       </AnimatePresence>
 
-      {/* Settings Modal Sheet */}
+      {/* Language Selection Modal */}
+      <AnimatePresence>
+        {showLangModal && (
+          <LanguageSelectModal
+            onSelectLanguage={(lang) => {
+              i18n.changeLanguage(lang);
+              handleUpdateSettings({ language: lang });
+              localStorage.setItem('bible_quiz_selected_language', lang);
+              setShowLangModal(false);
+            }}
+          />
+        )}
+      </AnimatePresence>
+
+      {/* Settings Modal */}
       <AnimatePresence>
         {isSettingsOpen && (
           <SettingsModal
@@ -365,7 +395,7 @@ export default function App() {
         )}
       </AnimatePresence>
 
-      {/* Future Roadmap Feature Preview Modal */}
+      {/* Future Preview Modal */}
       <AnimatePresence>
         {futureFeatureModal && (
           <FuturePreviewModal

@@ -53,13 +53,14 @@ export const CATEGORIES: Category[] = [
 ];
 
 export const QUESTIONS: Question[] = [
-  // --- OLD TESTAMENT & HISTORICAL ---
+  // --- ENGLISH QUESTIONS ---
   {
     id: 'q1',
     question: 'Which king in the Old Testament ruled for only seven days?',
     options: ['Omri', 'Zimri', 'Elah', 'Tibni'],
-    correctOptionIndex: 1, // Corrected position (Zimri)
+    correctOptionIndex: 1,
     category: 'old_testament',
+    language: 'en',
     hintReference: '1 Kings 16:15–20',
     explanationHint: '1 Kings 16:15–20',
     difficulty: 'medium',
@@ -68,8 +69,9 @@ export const QUESTIONS: Question[] = [
     id: 'q2',
     question: 'In how many days did God create the universe before resting on the seventh day?',
     options: ['7 days', '40 days', '6 days', '12 days'],
-    correctOptionIndex: 2, // Corrected position (6 days)
+    correctOptionIndex: 2,
     category: 'old_testament',
+    language: 'en',
     hintReference: 'Genesis 1:1–2:3',
     explanationHint: 'Genesis 1:1–2:3',
     difficulty: 'easy',
@@ -78,8 +80,9 @@ export const QUESTIONS: Question[] = [
     id: 'q3',
     question: 'On which mountain did Moses receive the Ten Commandments from God?',
     options: ['Mount Carmel', 'Mount Ararat', 'Mount Nebo', 'Mount Sinai'],
-    correctOptionIndex: 3, // Corrected position (Mount Sinai)
+    correctOptionIndex: 3,
     category: 'old_testament',
+    language: 'en',
     hintReference: 'Exodus 20:1–17',
     explanationHint: 'Exodus 20:1–17',
     difficulty: 'easy',
@@ -88,8 +91,9 @@ export const QUESTIONS: Question[] = [
     id: 'q4',
     question: 'What giant Philistine warrior did young David defeat with a sling and a stone?',
     options: ['Og', 'Goliath', 'Sihon', 'Ishbi-Benob'],
-    correctOptionIndex: 1, // Corrected position (Goliath)
+    correctOptionIndex: 1,
     category: 'old_testament',
+    language: 'en',
     hintReference: '1 Samuel 17:1–58',
     explanationHint: '1 Samuel 17:1–58',
     difficulty: 'easy',
@@ -98,8 +102,9 @@ export const QUESTIONS: Question[] = [
     id: 'q5',
     question: 'Which sea did God miraculously part through Moses so the Israelites could escape Egypt on dry land?',
     options: ['Dead Sea', 'Sea of Galilee', 'Red Sea', 'Mediterranean Sea'],
-    correctOptionIndex: 2, // Corrected position (Red Sea)
+    correctOptionIndex: 2,
     category: 'old_testament',
+    language: 'en',
     hintReference: 'Exodus 14:1–31',
     explanationHint: 'Exodus 14:1–31',
     difficulty: 'easy',
@@ -108,8 +113,9 @@ export const QUESTIONS: Question[] = [
     id: 'q6',
     question: 'Which prophet was saved from hungry lions after remaining faithful in prayer to God?',
     options: ['Ezekiel', 'Jeremiah', 'Isaiah', 'Daniel'],
-    correctOptionIndex: 3, // Corrected position (Daniel)
+    correctOptionIndex: 3,
     category: 'prophets',
+    language: 'en',
     hintReference: 'Daniel 6:1–28',
     explanationHint: 'Daniel 6:1–28',
     difficulty: 'easy',
@@ -120,6 +126,7 @@ export const QUESTIONS: Question[] = [
     options: ['Elijah', 'Elisha', 'Samuel', 'Nathan'],
     correctOptionIndex: 0,
     category: 'old_testament',
+    language: 'en',
     hintReference: '1 Kings 18:20–40',
     explanationHint: '1 Kings 18:20–40',
     difficulty: 'medium',
@@ -128,20 +135,20 @@ export const QUESTIONS: Question[] = [
     id: 'q8',
     question: 'Which courageous queen approached King Ahasuerus uninvited to save her Jewish people?',
     options: ['Ruth', 'Deborah', 'Esther', 'Hannah'],
-    correctOptionIndex: 2, // Corrected position (Esther)
+    correctOptionIndex: 2,
     category: 'old_testament',
+    language: 'en',
     hintReference: 'Esther 4:10–5:8',
     explanationHint: 'Esther 4:10–5:8',
     difficulty: 'medium',
   },
-
-  // --- WISDOM & PSALMS ---
   {
     id: 'q9',
     question: 'Which Psalm famously opens with "The LORD is my shepherd; I shall not want"?',
     options: ['Psalm 91', 'Psalm 23', 'Psalm 121', 'Psalm 100'],
-    correctOptionIndex: 1, // Corrected position (Psalm 23)
+    correctOptionIndex: 1,
     category: 'wisdom_psalms',
+    language: 'en',
     hintReference: 'Psalm 23:1–6',
     explanationHint: 'Psalm 23:1–6',
     difficulty: 'easy',
@@ -150,8 +157,9 @@ export const QUESTIONS: Question[] = [
     id: 'q10',
     question: 'According to Proverbs 3:5, with what should believers trust in the LORD?',
     options: ['Half your strength', 'All your wealth', 'Your own wisdom', 'All your heart'],
-    correctOptionIndex: 3, // Corrected position (All your heart)
+    correctOptionIndex: 3,
     category: 'wisdom_psalms',
+    language: 'en',
     hintReference: 'Proverbs 3:5–6',
     explanationHint: 'Proverbs 3:5–6',
     difficulty: 'easy',
@@ -160,20 +168,20 @@ export const QUESTIONS: Question[] = [
     id: 'q11',
     question: 'According to Ecclesiastes chapter 3, for what is there an appointed time under heaven?',
     options: ['For harvest only', 'For everything', 'For sorrow only', 'For kings only'],
-    correctOptionIndex: 1, // Corrected position (For everything)
+    correctOptionIndex: 1,
     category: 'wisdom_psalms',
+    language: 'en',
     hintReference: 'Ecclesiastes 3:1–8',
     explanationHint: 'Ecclesiastes 3:1–8',
     difficulty: 'medium',
   },
-
-  // --- PROPHETS ---
   {
     id: 'q12',
     question: 'Which prophet prophesied that Messiah would be "pierced for our transgressions"?',
     options: ['Jeremiah', 'Amos', 'Isaiah', 'Micah'],
-    correctOptionIndex: 2, // Corrected position (Isaiah)
+    correctOptionIndex: 2,
     category: 'prophets',
+    language: 'en',
     hintReference: 'Isaiah 53:1–12',
     explanationHint: 'Isaiah 53:1–12',
     difficulty: 'medium',
@@ -184,18 +192,18 @@ export const QUESTIONS: Question[] = [
     options: ['Jonah', 'Nahum', 'Hosea', 'Habakkuk'],
     correctOptionIndex: 0,
     category: 'prophets',
+    language: 'en',
     hintReference: 'Jonah 1:1–2:10',
     explanationHint: 'Jonah 1:1–2:10',
     difficulty: 'easy',
   },
-
-  // --- THE GOSPELS ---
   {
     id: 'q14',
     question: 'In which town was Jesus Christ born, as proclaimed by angels to local shepherds?',
     options: ['Nazareth', 'Jerusalem', 'Capernaum', 'Bethlehem'],
-    correctOptionIndex: 3, // Corrected position (Bethlehem)
+    correctOptionIndex: 3,
     category: 'gospels',
+    language: 'en',
     hintReference: 'Luke 2:1–20',
     explanationHint: 'Luke 2:1–20',
     difficulty: 'easy',
@@ -206,6 +214,7 @@ export const QUESTIONS: Question[] = [
     options: ['Mount of Olives', 'Sermon on the Mount', 'Mount Tabor', 'Mount Sinai'],
     correctOptionIndex: 1,
     category: 'gospels',
+    language: 'en',
     hintReference: 'Matthew 5:1–12',
     explanationHint: 'Matthew 5:1–12',
     difficulty: 'easy',
@@ -214,20 +223,20 @@ export const QUESTIONS: Question[] = [
     id: 'q16',
     question: 'In John 3:16, what did God give to the world because He loved us so deeply?',
     options: ['The Law of Moses', 'His only begotten Son', 'Earthly riches', 'A giant temple'],
-    correctOptionIndex: 1, // Corrected position (His only begotten Son)
+    correctOptionIndex: 1,
     category: 'gospels',
+    language: 'en',
     hintReference: 'John 3:16',
     explanationHint: 'John 3:16',
     difficulty: 'easy',
   },
-
-  // --- MIRACLES & PARABLES ---
   {
     id: 'q17',
     question: 'In Jesus’ parable of the Prodigal Son, who welcomed back the lost son with open arms?',
     options: ['His Elder Brother', 'The Town Mayor', 'His Father', 'The Hired Servants'],
-    correctOptionIndex: 2, // Corrected position (His Father)
+    correctOptionIndex: 2,
     category: 'miracles_parables',
+    language: 'en',
     hintReference: 'Luke 15:11–32',
     explanationHint: 'Luke 15:11–32',
     difficulty: 'easy',
@@ -236,8 +245,9 @@ export const QUESTIONS: Question[] = [
     id: 'q18',
     question: 'What was Jesus’ first miracle performed during a wedding feast in Cana of Galilee?',
     options: ['Calming the stormy sea', 'Walking on water', 'Healing a paralytic', 'Turning water into wine'],
-    correctOptionIndex: 3, // Corrected position (Turning water into wine)
+    correctOptionIndex: 3,
     category: 'miracles_parables',
+    language: 'en',
     hintReference: 'John 2:1–11',
     explanationHint: 'John 2:1–11',
     difficulty: 'easy',
@@ -246,20 +256,20 @@ export const QUESTIONS: Question[] = [
     id: 'q19',
     question: 'With how many loaves and fish did Jesus miraculously feed 5,000 men?',
     options: ['7 loaves and 3 fish', '5 loaves and 2 fish', '10 loaves and 5 fish', '2 loaves and 1 fish'],
-    correctOptionIndex: 1, // Corrected position (5 loaves and 2 fish)
+    correctOptionIndex: 1,
     category: 'miracles_parables',
+    language: 'en',
     hintReference: 'Matthew 14:13–21',
     explanationHint: 'Matthew 14:13–21',
     difficulty: 'easy',
   },
-
-  // --- EPISTLES & ACTS ---
   {
     id: 'q20',
     question: 'On which feast day did the Holy Spirit descend upon the apostles as tongues of fire?',
     options: ['Passover', 'Feast of Tabernacles', 'Day of Pentecost', 'Day of Atonement'],
-    correctOptionIndex: 2, // Corrected position (Day of Pentecost)
+    correctOptionIndex: 2,
     category: 'epistles',
+    language: 'en',
     hintReference: 'Acts 2:1–13',
     explanationHint: 'Acts 2:1–13',
     difficulty: 'medium',
@@ -270,6 +280,7 @@ export const QUESTIONS: Question[] = [
     options: ['Damascus', 'Antioch', 'Rome', 'Corinth'],
     correctOptionIndex: 0,
     category: 'epistles',
+    language: 'en',
     hintReference: 'Acts 9:1–19',
     explanationHint: 'Acts 9:1–19',
     difficulty: 'easy',
@@ -278,10 +289,68 @@ export const QUESTIONS: Question[] = [
     id: 'q22',
     question: 'In 1 Corinthians 13:13, which virtue is declared to be the greatest of faith, hope, and love?',
     options: ['Faith', 'Hope', 'Love', 'Knowledge'],
-    correctOptionIndex: 2, // Corrected position (Love)
+    correctOptionIndex: 2,
     category: 'epistles',
+    language: 'en',
     hintReference: '1 Corinthians 13:13',
     explanationHint: '1 Corinthians 13:13',
+    difficulty: 'easy',
+  },
+
+  // --- URDU QUESTIONS ---
+  {
+    id: 'q_ur_1',
+    question: 'عہدِ عتیق میں وہ کون سا بادشاہ تھا جس نے صرف سات دن حکومت کی؟',
+    options: ['عمری', 'زمری', 'ایلا', 'تبنی'],
+    correctOptionIndex: 1,
+    category: 'old_testament',
+    language: 'ur',
+    hintReference: '1 سلاطین 16:15–20',
+    explanationHint: '1 سلاطین 16:15–20',
+    difficulty: 'medium',
+  },
+  {
+    id: 'q_ur_2',
+    question: 'خدا نے کائنات کو کتنے دنوں میں تخلیق کیا اور ساتویں دن آرام کیا؟',
+    options: ['7 دن', '40 دن', '6 دن', '12 دن'],
+    correctOptionIndex: 2,
+    category: 'old_testament',
+    language: 'ur',
+    hintReference: 'پیدائش 1:1–2:3',
+    explanationHint: 'پیدائش 1:1–2:3',
+    difficulty: 'easy',
+  },
+  {
+    id: 'q_ur_3',
+    question: 'موسیٰ نے کس پہاڑ پر خدا سے دس احکام حاصل کیے؟',
+    options: ['کرمیل', 'ارارات', 'نبو', 'سینا'],
+    correctOptionIndex: 3,
+    category: 'old_testament',
+    language: 'ur',
+    hintReference: 'خروج 20:1–17',
+    explanationHint: 'خروج 20:1–17',
+    difficulty: 'easy',
+  },
+  {
+    id: 'q_ur_4',
+    question: 'حضرت داؤد نے غلیل اور پتھر سے کس دیو قامت فلستی جنگجو کو شکست دی؟',
+    options: ['عوج', 'جالوت', 'سیحون', 'اشبی بنوب'],
+    correctOptionIndex: 1,
+    category: 'old_testament',
+    language: 'ur',
+    hintReference: '1 سموئیل 17:1–58',
+    explanationHint: '1 سموئیل 17:1–58',
+    difficulty: 'easy',
+  },
+  {
+    id: 'q_ur_5',
+    question: 'خدا نے موسیٰ کے ذریعے کس سمندر کو معجزانہ طور پر دو حصوں میں تقسیم کیا تاکہ بنی اسرائیل مصر سے فرار ہو سکیں؟',
+    options: ['بحیرہ مردار', 'بحیرہ گلیل', 'بحیرہ قلزم', 'بحیرہ روم'],
+    correctOptionIndex: 2,
+    category: 'old_testament',
+    language: 'ur',
+    hintReference: 'خروج 14:1–31',
+    explanationHint: 'خروج 14:1–31',
     difficulty: 'easy',
   },
 ];

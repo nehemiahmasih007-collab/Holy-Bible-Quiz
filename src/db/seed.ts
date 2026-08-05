@@ -29,9 +29,8 @@ export const INITIAL_SETTINGS: QuizSettings = {
 
 export const INITIAL_LANGUAGES: Language[] = [
   { id: 'en', code: 'en', name: 'English', flag: '🇺🇸', isDefault: true },
-  { id: 'es', code: 'es', name: 'Spanish (Español)', flag: '🇪🇸', isDefault: false },
-  { id: 'pt', code: 'pt', name: 'Portuguese (Português)', flag: '🇧🇷', isDefault: false },
-  { id: 'fr', code: 'fr', name: 'French (Français)', flag: '🇫🇷', isDefault: false },
+  { id: 'hi', code: 'hi', name: 'Hindi (हिंदी)', flag: '🇮🇳', isDefault: false },
+  { id: 'ur', code: 'ur', name: 'Urdu (اردو)', flag: '🇵🇰', isDefault: false },
 ];
 
 export const INITIAL_FEATURES: FeatureFlag[] = [

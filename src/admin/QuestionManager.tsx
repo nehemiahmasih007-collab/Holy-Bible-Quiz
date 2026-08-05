@@ -37,6 +37,7 @@ export const QuestionManager: React.FC<QuestionManagerProps> = ({
   const [searchTerm, setSearchTerm] = useState('');
   const [categoryFilter, setCategoryFilter] = useState('all');
   const [difficultyFilter, setDifficultyFilter] = useState('all');
+  const [languageFilter, setLanguageFilter] = useState('all');
 
   // Pagination state
   const [currentPage, setCurrentPage] = useState(1);
@@ -64,6 +65,7 @@ export const QuestionManager: React.FC<QuestionManagerProps> = ({
   const [correctIdx, setCorrectIdx] = useState<number>(0);
   const [category, setCategory] = useState<string>(categories[0]?.id || 'gospels');
   const [difficulty, setDifficulty] = useState<'easy' | 'medium' | 'hard'>('easy');
+  const [language, setLanguage] = useState<'en' | 'ur' | 'hi'>('en');
   const [hintRef, setHintRef] = useState('');
   const [explanation, setExplanation] = useState('');
   const [formError, setFormError] = useState('');
@@ -78,6 +80,7 @@ export const QuestionManager: React.FC<QuestionManagerProps> = ({
     setCorrectIdx(0);
     setCategory(categories[0]?.id || 'gospels');
     setDifficulty('easy');
+    setLanguage('en');
     setHintRef('');
     setExplanation('');
     setFormError('');
@@ -94,6 +97,7 @@ export const QuestionManager: React.FC<QuestionManagerProps> = ({
     setCorrectIdx(q.correctOptionIndex);
     setCategory(q.category);
     setDifficulty(q.difficulty || 'easy');
+    setLanguage(q.language || 'en');
     setHintRef(q.hintReference || q.explanationHint || '');
     setExplanation(q.explanationHint || '');
     setFormError('');
@@ -128,6 +132,7 @@ export const QuestionManager: React.FC<QuestionManagerProps> = ({
         correctOptionIndex: correctIdx,
         category,
         difficulty,
+        language,
         hintReference: hintRef.trim(),
         explanationHint: expText,
       });
@@ -138,6 +143,7 @@ export const QuestionManager: React.FC<QuestionManagerProps> = ({
         correctOptionIndex: correctIdx,
         category,
         difficulty,
+        language,
         hintReference: hintRef.trim(),
         explanationHint: expText,
       });
@@ -198,7 +204,8 @@ export const QuestionManager: React.FC<QuestionManagerProps> = ({
       q.options.some((opt) => opt.toLowerCase().includes(searchTerm.toLowerCase()));
     const matchesCat = categoryFilter === 'all' || q.category === categoryFilter;
     const matchesDiff = difficultyFilter === 'all' || q.difficulty === difficultyFilter;
-    return matchesSearch && matchesCat && matchesDiff;
+    const matchesLang = languageFilter === 'all' || q.language === languageFilter;
+    return matchesSearch && matchesCat && matchesDiff && matchesLang;
   });
 
   // Pagination calculation
@@ -306,6 +313,20 @@ export const QuestionManager: React.FC<QuestionManagerProps> = ({
             <option value="medium">Medium</option>
             <option value="hard">Hard</option>
           </select>
+
+          <select
+            value={languageFilter}
+            onChange={(e) => {
+              setLanguageFilter(e.target.value);
+              setCurrentPage(1);
+            }}
+            className="px-3 py-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs text-slate-800 dark:text-slate-200 focus:outline-none focus:border-amber-400"
+          >
+            <option value="all">All Languages</option>
+            <option value="en">English (EN)</option>
+            <option value="ur">Urdu (UR)</option>
+            <option value="hi">Hindi (HI)</option>
+          </select>
         </div>
       </div>
 
@@ -350,6 +371,9 @@ export const QuestionManager: React.FC<QuestionManagerProps> = ({
                         </span>
                         <span className="text-[10px] font-mono text-amber-600 dark:text-amber-400 bg-amber-400/10 px-2 py-0.5 rounded-full border border-amber-400/20">
                           {q.difficulty || 'easy'}
+                        </span>
+                        <span className="text-[10px] font-bold text-indigo-600 dark:text-indigo-400 bg-indigo-400/10 px-2 py-0.5 rounded-full border border-indigo-400/20 uppercase">
+                          {q.language || 'en'}
                         </span>
                         {q.createdAt && (
                           <span className="text-[10px] text-slate-400 font-mono">
@@ -651,6 +675,19 @@ export const QuestionManager: React.FC<QuestionManagerProps> = ({
                     <option value="easy">Easy</option>
                     <option value="medium">Medium</option>
                     <option value="hard">Hard</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className="font-bold text-slate-700 dark:text-slate-300 block mb-1">Language</label>
+                  <select
+                    value={language}
+                    onChange={(e) => setLanguage(e.target.value as 'en' | 'ur' | 'hi')}
+                    className="w-full p-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white focus:outline-none focus:border-amber-400"
+                  >
+                    <option value="en">English (EN)</option>
+                    <option value="ur">Urdu (UR)</option>
+                    <option value="hi">Hindi (HI)</option>
                   </select>
                 </div>
               </div>

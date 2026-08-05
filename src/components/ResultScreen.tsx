@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { motion } from 'motion/react';
+import { motion } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
 import confetti from 'canvas-confetti';
 import {
@@ -12,12 +12,11 @@ import {
   RotateCcw,
   Home,
   BookOpen,
-  Award,
   Sparkles,
   ChevronDown,
   ChevronUp,
 } from 'lucide-react';
-import { Question, QuizSettings } from '../types';
+import { Question, QuizSettings } from '../models';
 import { soundFx } from '../utils/sound';
 
 interface ResultScreenProps {
@@ -48,9 +47,11 @@ export const ResultScreen: React.FC<ResultScreenProps> = ({
 
   questions.forEach((q, idx) => {
     const userSelected = userAnswers[idx];
-    if (userSelected === null) {
+    const correctIdx = Number(q.correctOptionIndex);
+
+    if (userSelected === null || userSelected === undefined) {
       skippedCount++;
-    } else if (userSelected === q.correctOptionIndex) {
+    } else if (userSelected === correctIdx) {
       correctCount++;
     } else {
       wrongCount++;
@@ -94,7 +95,7 @@ export const ResultScreen: React.FC<ResultScreenProps> = ({
   const rating = getPerformanceRating();
 
   return (
-    <div className="flex-1 flex flex-col p-4 sm:p-5 gap-5 pb-8 overflow-y-auto">
+    <div className="flex-1 flex flex-col p-4 sm:p-5 gap-5 pb-8 overflow-y-auto bg-slate-50 dark:bg-slate-900">
       {/* Result Hero Header Card */}
       <motion.div
         initial={{ scale: 0.9, opacity: 0 }}
@@ -133,7 +134,7 @@ export const ResultScreen: React.FC<ResultScreenProps> = ({
         </div>
       </motion.div>
 
-      {/* RESULT SUMMARY Grid (Track: Correct, Wrong, Skipped, Percentage, Time Taken) */}
+      {/* RESULT SUMMARY Grid */}
       <div className="flex flex-col gap-2">
         <h3 className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 px-1">
           📊 {t('home.stats')} {t('result.title')}
@@ -201,14 +202,14 @@ export const ResultScreen: React.FC<ResultScreenProps> = ({
       <div className="flex flex-col gap-2.5">
         <button
           onClick={onRestartQuiz}
-          className="w-full py-3.5 px-5 rounded-2xl bg-gradient-to-r from-amber-500 via-yellow-500 to-amber-600 text-slate-950 font-extrabold text-sm shadow-md shadow-amber-500/20 flex items-center justify-center gap-2 border border-amber-300/60 active:scale-98 transition"
+          className="w-full py-3.5 px-5 rounded-2xl bg-gradient-to-r from-amber-500 via-yellow-500 to-amber-600 text-slate-950 font-extrabold text-sm shadow-md shadow-amber-500/20 flex items-center justify-center gap-2 border border-amber-300/60 active:scale-98 transition cursor-pointer"
         >
           <RotateCcw className="w-4 h-4" /> {t('result.restart')}
         </button>
 
         <button
           onClick={onGoHome}
-          className="w-full py-3.5 px-5 rounded-2xl bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-200 font-bold text-sm border border-slate-300 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-750 flex items-center justify-center gap-2 active:scale-98 transition"
+          className="w-full py-3.5 px-5 rounded-2xl bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-200 font-bold text-sm border border-slate-300 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-750 flex items-center justify-center gap-2 active:scale-98 transition cursor-pointer"
         >
           <Home className="w-4 h-4" /> {t('result.go_home')}
         </button>
@@ -218,7 +219,7 @@ export const ResultScreen: React.FC<ResultScreenProps> = ({
       <div className="pt-2 flex flex-col gap-3">
         <button
           onClick={() => setShowDetails(!showDetails)}
-          className="w-full p-3.5 bg-slate-100 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 rounded-2xl flex items-center justify-between text-xs font-bold text-slate-700 dark:text-slate-200 hover:bg-slate-200/60 transition"
+          className="w-full p-3.5 bg-slate-100 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 rounded-2xl flex items-center justify-between text-xs font-bold text-slate-700 dark:text-slate-200 hover:bg-slate-200/60 transition cursor-pointer"
         >
           <span className="flex items-center gap-2">
             <BookOpen className="w-4 h-4 text-blue-500" />
@@ -231,13 +232,14 @@ export const ResultScreen: React.FC<ResultScreenProps> = ({
           <div className="flex flex-col gap-3 pt-1">
             {questions.map((q, idx) => {
               const selectedIdx = userAnswers[idx];
-              const isCorrect = selectedIdx === q.correctOptionIndex;
-              const isSkipped = selectedIdx === null;
+              const correctIdx = Number(q.correctOptionIndex);
+              const isCorrect = selectedIdx === correctIdx;
+              const isSkipped = selectedIdx === null || selectedIdx === undefined;
               const isExpanded = expandedIndex === idx;
 
               return (
                 <div
-                  key={q.id}
+                  key={q.id || idx}
                   className={`p-3.5 rounded-2xl border text-left transition ${
                     isCorrect
                       ? 'bg-emerald-50/50 dark:bg-emerald-950/20 border-emerald-200 dark:border-emerald-900/60'
@@ -262,7 +264,7 @@ export const ResultScreen: React.FC<ResultScreenProps> = ({
                         <span className="text-[11px] font-bold text-slate-500 dark:text-slate-400 block">
                           Question {idx + 1}
                         </span>
-                        <h4 className="text-xs font-bold text-slate-900 dark:text-slate-100 leading-snug">
+                        <h4 className="text-xs font-bold text-slate-900 dark:text-slate-100 leading-snug font-serif">
                           {q.question}
                         </h4>
                       </div>
@@ -286,7 +288,7 @@ export const ResultScreen: React.FC<ResultScreenProps> = ({
                             : 'text-red-600 dark:text-red-400'
                         }`}
                       >
-                        {selectedIdx !== null && selectedIdx >= 0
+                        {selectedIdx !== null && selectedIdx !== undefined && selectedIdx >= 0
                           ? q.options[selectedIdx]
                           : selectedIdx === -1
                           ? 'Time Expired ⏱️'
@@ -297,16 +299,18 @@ export const ResultScreen: React.FC<ResultScreenProps> = ({
                     <div className="flex items-center gap-1.5">
                       <span className="font-semibold text-slate-500">Correct Answer:</span>
                       <span className="font-mono font-bold text-emerald-600 dark:text-emerald-400">
-                        {q.options[q.correctOptionIndex]}
+                        {q.options[correctIdx]}
                       </span>
                     </div>
 
-                    <div className="flex items-center gap-1.5">
-                      <span className="font-semibold text-slate-500">📖 Scripture Reference:</span>
-                      <span className="font-mono font-bold text-amber-700 dark:text-amber-300">
-                        {q.hintReference || q.explanationHint}
-                      </span>
-                    </div>
+                    {(q.hintReference || q.explanationHint) && (
+                      <div className="flex items-center gap-1.5">
+                        <span className="font-semibold text-slate-500">📖 Scripture Reference:</span>
+                        <span className="font-mono font-bold text-amber-700 dark:text-amber-300">
+                          {q.hintReference || q.explanationHint}
+                        </span>
+                      </div>
+                    )}
 
                     {isExpanded && q.explanationHint && (
                       <div className="mt-2 p-2.5 bg-white dark:bg-slate-900/80 rounded-xl border border-amber-400/30 text-[11px] text-slate-700 dark:text-slate-300 leading-relaxed">

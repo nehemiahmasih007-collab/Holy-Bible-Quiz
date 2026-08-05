@@ -33,8 +33,8 @@ export class BibleQuizDatabase extends Dexie {
     super('BibleQuizWorldDB');
 
     // Define table schemas with indexes for high-performance querying
-    this.version(1).stores({
-      questions: 'id, category, difficulty, question, createdAt',
+    this.version(2).stores({
+      questions: 'id, category, difficulty, language, question, createdAt',
       categories: 'id, name, order',
       settings: 'id',
       bookmarks: 'id, questionId, createdAt',

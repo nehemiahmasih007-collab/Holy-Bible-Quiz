@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import { motion } from 'motion/react';
-import { ShieldCheck, Lock, User, ArrowLeft, Key, Sparkles } from 'lucide-react';
+import { motion } from 'framer-motion';
+import { ShieldCheck, Lock, User, ArrowLeft, Key } from 'lucide-react';
 
 interface AdminLoginProps {
   onLoginSuccess: () => void;
@@ -31,7 +31,7 @@ export const AdminLogin: React.FC<AdminLoginProps> = ({
       <div className="flex items-center justify-between pt-1">
         <button
           onClick={onBackToApp}
-          className="p-2 rounded-2xl bg-slate-800/80 border border-slate-700 text-slate-300 hover:text-white transition flex items-center gap-1.5 text-xs font-semibold"
+          className="p-2 rounded-2xl bg-slate-800/80 border border-slate-700 text-slate-300 hover:text-white transition flex items-center gap-1.5 text-xs font-semibold cursor-pointer"
         >
           <ArrowLeft className="w-4 h-4" /> App Home
         </button>
@@ -45,6 +45,7 @@ export const AdminLogin: React.FC<AdminLoginProps> = ({
       <motion.div
         initial={{ scale: 0.95, opacity: 0 }}
         animate={{ scale: 1, opacity: 1 }}
+        transition={{ duration: 0.3 }}
         className="my-auto py-6 flex flex-col gap-5 w-full max-w-sm mx-auto"
       >
         <div className="text-center flex flex-col items-center gap-2">
@@ -63,7 +64,7 @@ export const AdminLogin: React.FC<AdminLoginProps> = ({
         </div>
 
         {error && (
-          <div className="p-3 bg-red-500/20 border border-red-500/40 rounded-2xl text-xs text-red-200 text-center font-medium">
+          <div className="p-3 bg-red-500/20 border border-red-500/40 rounded-2xl text-xs text-red-200 text-center font-medium animate-shake">
             {error}
           </div>
         )}
@@ -105,7 +106,7 @@ export const AdminLogin: React.FC<AdminLoginProps> = ({
 
           <button
             type="submit"
-            className="w-full mt-2 py-3.5 px-4 rounded-2xl bg-gradient-to-r from-amber-500 via-yellow-500 to-amber-600 text-slate-950 font-extrabold text-xs shadow-lg shadow-amber-500/20 hover:brightness-110 active:scale-98 transition flex items-center justify-center gap-2"
+            className="w-full mt-2 py-3.5 px-4 rounded-2xl bg-gradient-to-r from-amber-500 via-yellow-500 to-amber-600 text-slate-950 font-extrabold text-xs shadow-lg shadow-amber-500/20 hover:brightness-110 active:scale-98 transition flex items-center justify-center gap-2 cursor-pointer"
           >
             <Key className="w-4 h-4" /> Sign In to Admin Panel
           </button>

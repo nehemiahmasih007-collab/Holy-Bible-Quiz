@@ -16,6 +16,7 @@ export interface Question {
   options: [string, string, string, string]; // Exactly 4 Answer Options
   correctOptionIndex: number; // 0, 1, 2, or 3
   category: CategoryId;
+  language: 'en' | 'ur' | 'hi';
   hintReference: string; // Scripture Reference (e.g. "1 Kings 16:15–20")
   explanationHint?: string; // Optional backward-compatible fallback
   difficulty?: 'easy' | 'medium' | 'hard';

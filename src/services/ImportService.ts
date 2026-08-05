@@ -121,6 +121,10 @@ export class ImportService {
       normalizedRow['explanation'] ||
       '';
 
+    // Match Language
+    const language = (normalizedRow['language'] || normalizedRow['lang'] || 'en').toLowerCase();
+    const validLang = (language === 'ur' || language === 'hi') ? language : 'en';
+
     // Match Difficulty
     let difficulty: QuestionDifficulty = 'easy';
     const diffRaw = (normalizedRow['difficulty'] || normalizedRow['level'] || '').toString().toLowerCase();
@@ -132,6 +136,7 @@ export class ImportService {
       options: [String(opt1).trim(), String(opt2).trim(), String(opt3).trim(), String(opt4).trim()],
       correctOptionIndex,
       category: String(category).trim().toLowerCase().replace(/\s+/g, '_'),
+      language: validLang as 'en' | 'ur' | 'hi',
       hintReference: String(hintReference).trim(),
       explanationHint: String(hintReference).trim(),
       difficulty,
@@ -215,6 +220,7 @@ export class ImportService {
         options: draft.options as [string, string, string, string],
         correctOptionIndex: draft.correctOptionIndex!,
         category: draft.category || 'all',
+        language: draft.language || 'en',
         hintReference: draft.hintReference || draft.explanationHint || '',
         explanationHint: draft.hintReference || draft.explanationHint || '',
         difficulty: draft.difficulty || 'easy',

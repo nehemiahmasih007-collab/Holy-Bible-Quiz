@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { motion, AnimatePresence } from 'motion/react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
 import {
   ArrowLeft,
@@ -15,7 +15,7 @@ import {
   X,
   Sparkles,
 } from 'lucide-react';
-import { Question, QuizSettings } from '../types';
+import { Question, QuizSettings } from '../models';
 import { soundFx } from '../utils/sound';
 
 interface QuizScreenProps {
@@ -46,27 +46,27 @@ export const QuizScreen: React.FC<QuizScreenProps> = ({
   onToggleBookmark,
 }) => {
   const { t } = useTranslation();
-  const [showExitConfirm, setShowExitConfirm] = useState(false);
-  const [showHintSheet, setShowHintSheet] = useState(false);
+  const [showExitConfirm, setShowExitConfirm] = useState<boolean>(false);
+  const [showHintSheet, setShowHintSheet] = useState<boolean>(false);
   const [timerSeconds, setTimerSeconds] = useState<number>(settings.timePerQuestion || 20);
 
   const currentQuestion = questions[currentQuestionIndex];
   const totalQuestions = questions.length;
   const selectedOption = userAnswers[currentQuestionIndex];
-  const hasAnswered = selectedOption !== null;
-  const isBookmarked = bookmarkedIds.includes(currentQuestion?.id);
+  const hasAnswered = selectedOption !== null && selectedOption !== undefined;
+  const isBookmarked = currentQuestion ? bookmarkedIds.includes(currentQuestion.id) : false;
 
-  // Strictly evaluate correct option index as a number
+  // Evaluate correct option index reliably
   const correctIdx = currentQuestion ? Number(currentQuestion.correctOptionIndex) : -1;
   const isSelectedCorrect = selectedOption === correctIdx;
   const hintRefText = currentQuestion?.hintReference || currentQuestion?.explanationHint || '';
 
-  // Close hint sheet whenever question changes
+  // Close hint sheet on question transition
   useEffect(() => {
     setShowHintSheet(false);
   }, [currentQuestionIndex]);
 
-  // Question timer effect
+  // Question timer effect logic
   useEffect(() => {
     if (!settings.timerEnabled || hasAnswered) return;
 
@@ -88,8 +88,7 @@ export const QuizScreen: React.FC<QuizScreenProps> = ({
   if (!currentQuestion) return null;
 
   const handleOptionClick = (index: number) => {
-    // Option lock: Once an answer has been selected, user cannot change it
-    if (selectedOption !== null) return;
+    if (hasAnswered) return;
 
     if (index === correctIdx) {
       soundFx.playCorrect(settings.soundEnabled);
@@ -119,13 +118,13 @@ export const QuizScreen: React.FC<QuizScreenProps> = ({
 
   return (
     <div className="flex-1 flex flex-col justify-between p-4 sm:p-5 relative overflow-y-auto bg-slate-50 dark:bg-slate-900">
-      {/* Top Bar: Navigation & Status */}
+      {/* Top Navigation & Status Bar */}
       <div className="flex flex-col gap-3 shrink-0 pt-1">
         <div className="flex items-center justify-between">
           <button
             onClick={() => setShowExitConfirm(true)}
             className="p-2 rounded-2xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 hover:bg-slate-100 transition shadow-xs active:scale-95"
-            aria-label="Back"
+            aria-label="Exit Quiz"
           >
             <ArrowLeft className="w-5 h-5" />
           </button>
@@ -196,7 +195,6 @@ export const QuizScreen: React.FC<QuizScreenProps> = ({
                 <BookOpen className="w-3 h-3" /> Bible Knowledge
               </span>
 
-              {/* Hint Trigger Button */}
               <button
                 onClick={() => {
                   soundFx.playClick(settings.soundEnabled);
@@ -215,7 +213,7 @@ export const QuizScreen: React.FC<QuizScreenProps> = ({
           </motion.div>
         </AnimatePresence>
 
-        {/* 4 Answer Option Buttons (No Shuffling) */}
+        {/* Answer Options */}
         <div className="flex flex-col gap-2.5">
           {currentQuestion.options.map((optionText, idx) => {
             const isSelected = selectedOption === idx;
@@ -227,17 +225,14 @@ export const QuizScreen: React.FC<QuizScreenProps> = ({
 
             if (hasAnswered) {
               if (isCorrectOption) {
-                // Correct answer highlighted in GREEN
                 buttonStyle = 'bg-emerald-500/15 border-2 border-emerald-500 text-emerald-950 dark:text-emerald-100 shadow-md ring-2 ring-emerald-500/30 font-bold';
                 badgeStyle = 'bg-emerald-500 text-white font-bold';
                 animateProps = { scale: [1, 1.02, 1] };
               } else if (isSelected && !isCorrectOption) {
-                // User's wrong answer highlighted in RED
                 buttonStyle = 'bg-red-500/15 border-2 border-red-500 text-red-950 dark:text-red-100 shadow-md ring-2 ring-red-500/30 font-bold';
                 badgeStyle = 'bg-red-500 text-white font-bold';
                 animateProps = { x: [-4, 4, -2, 2, 0] };
               } else {
-                // Muted unselected options
                 buttonStyle = 'opacity-40 cursor-not-allowed bg-slate-100 dark:bg-slate-800/40 border-slate-200 dark:border-slate-800 text-slate-400';
               }
             }
@@ -252,12 +247,9 @@ export const QuizScreen: React.FC<QuizScreenProps> = ({
                 className={`w-full min-h-[56px] p-3.5 rounded-2xl border text-left flex items-center justify-between transition-all duration-200 ${buttonStyle}`}
               >
                 <div className="flex items-center gap-3 pr-2">
-                  <div
-                    className={`w-9 h-9 rounded-xl flex items-center justify-center font-bold text-xs shrink-0 transition ${badgeStyle}`}
-                  >
-                    {optionLabels[idx]}
+                  <div className={`w-9 h-9 rounded-xl flex items-center justify-center font-bold text-xs shrink-0 transition ${badgeStyle}`}>
+                    {optionLabels[idx] || idx + 1}
                   </div>
-
                   <span className="font-semibold text-xs sm:text-sm tracking-wide">
                     {optionText}
                   </span>
@@ -281,7 +273,7 @@ export const QuizScreen: React.FC<QuizScreenProps> = ({
           })}
         </div>
 
-        {/* Feedback Message Card */}
+        {/* Feedback Banner */}
         <AnimatePresence>
           {hasAnswered && (
             <motion.div
@@ -304,9 +296,11 @@ export const QuizScreen: React.FC<QuizScreenProps> = ({
                     <h4 className="font-extrabold text-sm text-emerald-800 dark:text-emerald-300">
                       ✅ Correct Answer!
                     </h4>
-                    <p className="text-xs text-emerald-700 dark:text-emerald-400 mt-0.5">
-                      Scripture Reference: <span className="font-mono font-bold">{hintRefText}</span>
-                    </p>
+                    {hintRefText && (
+                      <p className="text-xs text-emerald-700 dark:text-emerald-400 mt-0.5">
+                        Scripture Reference: <span className="font-mono font-bold">{hintRefText}</span>
+                      </p>
+                    )}
                   </div>
                 </div>
               ) : (
@@ -324,12 +318,14 @@ export const QuizScreen: React.FC<QuizScreenProps> = ({
                       </span>
                     </div>
 
-                    <div>
-                      <span className="font-semibold text-slate-600 dark:text-slate-400 block text-[11px]">📖 Scripture Reference:</span>
-                      <span className="font-mono font-bold text-amber-700 dark:text-amber-300 text-xs block">
-                        {hintRefText}
-                      </span>
-                    </div>
+                    {hintRefText && (
+                      <div>
+                        <span className="font-semibold text-slate-600 dark:text-slate-400 block text-[11px]">📖 Scripture Reference:</span>
+                        <span className="font-mono font-bold text-amber-700 dark:text-amber-300 text-xs block">
+                          {hintRefText}
+                        </span>
+                      </div>
+                    )}
                   </div>
                 </div>
               )}
@@ -338,7 +334,7 @@ export const QuizScreen: React.FC<QuizScreenProps> = ({
         </AnimatePresence>
       </div>
 
-      {/* Bottom Controls Row: Previous & Next/Submit Buttons */}
+      {/* Bottom Controls */}
       <div className="flex items-center justify-between gap-3 shrink-0 pt-2 border-t border-slate-200 dark:border-slate-800">
         <button
           onClick={handlePrevClick}
@@ -374,7 +370,7 @@ export const QuizScreen: React.FC<QuizScreenProps> = ({
         </button>
       </div>
 
-      {/* Material Design Hint Bottom Sheet / Dialog */}
+      {/* Hint Bottom Sheet */}
       <AnimatePresence>
         {showHintSheet && (
           <div className="fixed inset-0 bg-slate-950/70 backdrop-blur-xs z-50 flex flex-col justify-end p-0 sm:p-4 sm:items-center sm:justify-center">
@@ -426,7 +422,7 @@ export const QuizScreen: React.FC<QuizScreenProps> = ({
               </div>
 
               <p className="text-xs text-slate-600 dark:text-slate-300 leading-relaxed bg-slate-50 dark:bg-slate-800/60 p-3.5 rounded-xl border border-slate-200 dark:border-slate-700/60">
-                Open your personal Bible or Bible app to <strong>{hintRefText}</strong> to study the passage and find the correct answer before submitting!
+                Open your personal Bible or Bible app to <strong>{hintRefText || 'the reference passage'}</strong> to study the passage and find the correct answer before submitting!
               </p>
 
               <button
@@ -440,7 +436,7 @@ export const QuizScreen: React.FC<QuizScreenProps> = ({
         )}
       </AnimatePresence>
 
-      {/* Exit Quiz Confirmation Modal */}
+      {/* Exit Modal */}
       {showExitConfirm && (
         <div className="absolute inset-0 bg-slate-950/80 backdrop-blur-xs z-50 flex items-center justify-center p-6">
           <motion.div

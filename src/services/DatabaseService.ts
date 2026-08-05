@@ -13,11 +13,22 @@ type ChangeListener = () => void;
 export class DatabaseService {
   private listeners: Set<ChangeListener> = new Set();
   private isInitialized = false;
+  private initPromise: Promise<void> | null = null;
 
   async init(): Promise<void> {
     if (this.isInitialized) return;
-    await initializeDatabase();
-    this.isInitialized = true;
+    if (this.initPromise) return this.initPromise;
+
+    this.initPromise = (async () => {
+      try {
+        await initializeDatabase();
+        this.isInitialized = true;
+      } finally {
+        this.initPromise = null;
+      }
+    })();
+
+    return this.initPromise;
   }
 
   subscribe(listener: ChangeListener): () => void {
@@ -40,7 +51,7 @@ export class DatabaseService {
   // --- QUESTIONS ---
   async getQuestions(category: string = 'all'): Promise<Question[]> {
     await this.init();
-    return await questionRepository.getByCategory(category);
+    return questionRepository.getByCategory(category);
   }
 
   async addQuestion(question: Omit<Question, 'id'>): Promise<Question> {
@@ -69,10 +80,13 @@ export class DatabaseService {
   // --- CATEGORIES ---
   async getCategories(): Promise<Category[]> {
     await this.init();
-    const cats = await categoryRepository.getAll();
-    const questions = await questionRepository.getAll();
+    
+    // Fetch categories and questions concurrently to prevent blocking waterfalls
+    const [cats, questions] = await Promise.all([
+      categoryRepository.getAll(),
+      questionRepository.getAll(),
+    ]);
 
-    // Dynamically calculate actual DB question count for each category
     return cats.map((cat) => {
       const count =
         cat.id === 'all'
@@ -117,7 +131,7 @@ export class DatabaseService {
   // --- SETTINGS ---
   async getSettings(): Promise<QuizSettings> {
     await this.init();
-    return await settingsRepository.getSettings();
+    return settingsRepository.getSettings();
   }
 
   async updateSettings(updates: Partial<QuizSettings>): Promise<QuizSettings> {
@@ -130,7 +144,7 @@ export class DatabaseService {
   // --- FEATURES ---
   async getFeatures(): Promise<FeatureFlag[]> {
     await this.init();
-    return await featureFlagRepository.getAll();
+    return featureFlagRepository.getAll();
   }
 
   async toggleFeature(id: string, enabled: boolean): Promise<FeatureFlag | null> {
@@ -150,7 +164,7 @@ export class DatabaseService {
     timestamp: number;
   }) {
     await this.init();
-    return await quizHistoryRepository.add({
+    const res = await quizHistoryRepository.add({
       categoryId: data.category,
       score: data.correctAnswers,
       totalQuestions: data.totalQuestions,
@@ -158,27 +172,33 @@ export class DatabaseService {
       xpEarned: data.correctAnswers * 10,
       durationSeconds: data.timeSpentSeconds,
     });
+    this.notifyChange();
+    return res;
   }
 
   async isBookmarked(questionId: string): Promise<boolean> {
     await this.init();
-    return await bookmarkRepository.isBookmarked(questionId);
+    return bookmarkRepository.isBookmarked(questionId);
   }
 
   async addBookmark(questionId: string) {
     await this.init();
-    return await bookmarkRepository.add(questionId);
+    const res = await bookmarkRepository.add(questionId);
+    this.notifyChange();
+    return res;
   }
 
   async removeBookmark(questionId: string) {
     await this.init();
-    return await bookmarkRepository.delete(questionId);
+    const res = await bookmarkRepository.delete(questionId);
+    this.notifyChange();
+    return res;
   }
 
   // --- BACKUPS ---
   async getBackups() {
     await this.init();
-    return await backupRepository.getAll();
+    return backupRepository.getAll();
   }
 
   async createBackup(name: string, isAuto: boolean = false) {

@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import {
-  ShieldCheck,
   LogOut,
   ArrowLeft,
   HelpCircle,
@@ -10,8 +9,6 @@ import {
   Database,
   Layers,
   BarChart3,
-  BookOpen,
-  CheckCircle2,
   Clock,
   Sparkles,
 } from 'lucide-react';
@@ -44,12 +41,22 @@ export type AdminTab =
   | 'data'
   | 'future';
 
+const NAV_TABS = [
+  { id: 'overview' as const, label: 'Dashboard', icon: BarChart3 },
+  { id: 'questions' as const, label: 'Questions', icon: HelpCircle },
+  { id: 'categories' as const, label: 'Categories', icon: FolderTree },
+  { id: 'features' as const, label: 'Features', icon: Sliders },
+  { id: 'settings' as const, label: 'Settings', icon: Settings },
+  { id: 'data' as const, label: 'Data / Backup', icon: Database },
+  { id: 'future' as const, label: 'Extensions', icon: Layers },
+];
+
 export const AdminDashboard: React.FC<AdminDashboardProps> = ({
-  questions,
-  categories,
-  features,
+  questions = [],
+  categories = [],
+  features = [],
   appConfig,
-  logs,
+  logs = [],
   onLogout,
   onBackToApp,
   onRefreshData,
@@ -66,7 +73,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
         <div className="flex items-center gap-2">
           <button
             onClick={onBackToApp}
-            className="p-2 rounded-xl bg-slate-800 text-slate-300 hover:text-white hover:bg-slate-700 transition"
+            className="p-2 rounded-xl bg-slate-800 text-slate-300 hover:text-white hover:bg-slate-700 transition cursor-pointer"
             title="Return to Student Mobile App"
           >
             <ArrowLeft className="w-4 h-4" />
@@ -75,7 +82,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
           <div className="flex flex-col">
             <div className="flex items-center gap-1.5">
               <span className="text-xs font-bold text-amber-400 font-serif">
-                {appConfig.appName} Admin
+                {appConfig?.appName || 'Bible Quiz'} Admin
               </span>
               <span className="text-[9px] font-mono font-bold bg-amber-400/20 text-amber-300 px-1.5 py-0.5 rounded border border-amber-400/30">
                 PRO
@@ -88,7 +95,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
         <div className="flex items-center gap-2">
           <button
             onClick={onLogout}
-            className="px-3 py-1.5 rounded-xl bg-red-950/60 border border-red-800/80 text-red-300 hover:bg-red-900 text-xs font-bold flex items-center gap-1.5 transition"
+            className="px-3 py-1.5 rounded-xl bg-red-950/60 border border-red-800/80 text-red-300 hover:bg-red-900 text-xs font-bold flex items-center gap-1.5 transition cursor-pointer"
           >
             <LogOut className="w-3.5 h-3.5" /> Logout
           </button>
@@ -97,22 +104,14 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
 
       {/* Tab Navigation Menu */}
       <div className="bg-slate-900/90 border-b border-slate-800 px-3 py-1.5 flex items-center gap-1 overflow-x-auto shrink-0 scrollbar-none">
-        {[
-          { id: 'overview', label: 'Dashboard', icon: BarChart3 },
-          { id: 'questions', label: 'Questions', icon: HelpCircle },
-          { id: 'categories', label: 'Categories', icon: FolderTree },
-          { id: 'features', label: 'Features', icon: Sliders },
-          { id: 'settings', label: 'Settings', icon: Settings },
-          { id: 'data', label: 'Data / Backup', icon: Database },
-          { id: 'future', label: 'Extensions', icon: Layers },
-        ].map((tab) => {
+        {NAV_TABS.map((tab) => {
           const IconC = tab.icon;
           const isActive = activeTab === tab.id;
           return (
             <button
               key={tab.id}
-              onClick={() => setActiveTab(tab.id as AdminTab)}
-              className={`px-3 py-2 rounded-xl text-xs font-bold transition flex items-center gap-1.5 whitespace-nowrap ${
+              onClick={() => setActiveTab(tab.id)}
+              className={`px-3 py-2 rounded-xl text-xs font-bold transition flex items-center gap-1.5 whitespace-nowrap cursor-pointer ${
                 isActive
                   ? 'bg-amber-500 text-slate-950 shadow-md shadow-amber-500/20'
                   : 'text-slate-400 hover:text-white hover:bg-slate-800'
@@ -187,13 +186,13 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
               <div className="flex items-center gap-2 w-full sm:w-auto">
                 <button
                   onClick={() => setActiveTab('questions')}
-                  className="flex-1 sm:flex-none px-3.5 py-2 bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold rounded-xl text-xs transition"
+                  className="flex-1 sm:flex-none px-3.5 py-2 bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold rounded-xl text-xs transition cursor-pointer"
                 >
                   Manage Questions
                 </button>
                 <button
                   onClick={() => setActiveTab('categories')}
-                  className="flex-1 sm:flex-none px-3.5 py-2 bg-slate-800 hover:bg-slate-700 text-slate-200 font-bold rounded-xl text-xs transition border border-slate-700"
+                  className="flex-1 sm:flex-none px-3.5 py-2 bg-slate-800 hover:bg-slate-700 text-slate-200 font-bold rounded-xl text-xs transition border border-slate-700 cursor-pointer"
                 >
                   Edit Categories
                 </button>
