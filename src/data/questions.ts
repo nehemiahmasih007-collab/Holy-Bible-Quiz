@@ -57,8 +57,8 @@ export const QUESTIONS: Question[] = [
   {
     id: 'q1',
     question: 'Which king in the Old Testament ruled for only seven days?',
-    options: ['Zimri', 'Omri', 'Elah', 'Tibni'],
-    correctOptionIndex: 0,
+    options: ['Omri', 'Zimri', 'Elah', 'Tibni'],
+    correctOptionIndex: 1, // Corrected position (Zimri)
     category: 'old_testament',
     hintReference: '1 Kings 16:15–20',
     explanationHint: '1 Kings 16:15–20',
@@ -67,8 +67,8 @@ export const QUESTIONS: Question[] = [
   {
     id: 'q2',
     question: 'In how many days did God create the universe before resting on the seventh day?',
-    options: ['6 days', '7 days', '40 days', '12 days'],
-    correctOptionIndex: 0,
+    options: ['7 days', '40 days', '6 days', '12 days'],
+    correctOptionIndex: 2, // Corrected position (6 days)
     category: 'old_testament',
     hintReference: 'Genesis 1:1–2:3',
     explanationHint: 'Genesis 1:1–2:3',
@@ -77,8 +77,8 @@ export const QUESTIONS: Question[] = [
   {
     id: 'q3',
     question: 'On which mountain did Moses receive the Ten Commandments from God?',
-    options: ['Mount Sinai', 'Mount Carmel', 'Mount Ararat', 'Mount Nebo'],
-    correctOptionIndex: 0,
+    options: ['Mount Carmel', 'Mount Ararat', 'Mount Nebo', 'Mount Sinai'],
+    correctOptionIndex: 3, // Corrected position (Mount Sinai)
     category: 'old_testament',
     hintReference: 'Exodus 20:1–17',
     explanationHint: 'Exodus 20:1–17',
@@ -87,8 +87,8 @@ export const QUESTIONS: Question[] = [
   {
     id: 'q4',
     question: 'What giant Philistine warrior did young David defeat with a sling and a stone?',
-    options: ['Goliath', 'Og', 'Sihon', 'Ishbi-Benob'],
-    correctOptionIndex: 0,
+    options: ['Og', 'Goliath', 'Sihon', 'Ishbi-Benob'],
+    correctOptionIndex: 1, // Corrected position (Goliath)
     category: 'old_testament',
     hintReference: '1 Samuel 17:1–58',
     explanationHint: '1 Samuel 17:1–58',
@@ -97,8 +97,8 @@ export const QUESTIONS: Question[] = [
   {
     id: 'q5',
     question: 'Which sea did God miraculously part through Moses so the Israelites could escape Egypt on dry land?',
-    options: ['Red Sea', 'Dead Sea', 'Sea of Galilee', 'Mediterranean Sea'],
-    correctOptionIndex: 0,
+    options: ['Dead Sea', 'Sea of Galilee', 'Red Sea', 'Mediterranean Sea'],
+    correctOptionIndex: 2, // Corrected position (Red Sea)
     category: 'old_testament',
     hintReference: 'Exodus 14:1–31',
     explanationHint: 'Exodus 14:1–31',
@@ -107,8 +107,8 @@ export const QUESTIONS: Question[] = [
   {
     id: 'q6',
     question: 'Which prophet was saved from hungry lions after remaining faithful in prayer to God?',
-    options: ['Daniel', 'Ezekiel', 'Jeremiah', 'Isaiah'],
-    correctOptionIndex: 0,
+    options: ['Ezekiel', 'Jeremiah', 'Isaiah', 'Daniel'],
+    correctOptionIndex: 3, // Corrected position (Daniel)
     category: 'prophets',
     hintReference: 'Daniel 6:1–28',
     explanationHint: 'Daniel 6:1–28',
@@ -127,8 +127,8 @@ export const QUESTIONS: Question[] = [
   {
     id: 'q8',
     question: 'Which courageous queen approached King Ahasuerus uninvited to save her Jewish people?',
-    options: ['Esther', 'Ruth', 'Deborah', 'Hannah'],
-    correctOptionIndex: 0,
+    options: ['Ruth', 'Deborah', 'Esther', 'Hannah'],
+    correctOptionIndex: 2, // Corrected position (Esther)
     category: 'old_testament',
     hintReference: 'Esther 4:10–5:8',
     explanationHint: 'Esther 4:10–5:8',
@@ -139,8 +139,8 @@ export const QUESTIONS: Question[] = [
   {
     id: 'q9',
     question: 'Which Psalm famously opens with "The LORD is my shepherd; I shall not want"?',
-    options: ['Psalm 23', 'Psalm 91', 'Psalm 121', 'Psalm 100'],
-    correctOptionIndex: 0,
+    options: ['Psalm 91', 'Psalm 23', 'Psalm 121', 'Psalm 100'],
+    correctOptionIndex: 1, // Corrected position (Psalm 23)
     category: 'wisdom_psalms',
     hintReference: 'Psalm 23:1–6',
     explanationHint: 'Psalm 23:1–6',
@@ -149,8 +149,8 @@ export const QUESTIONS: Question[] = [
   {
     id: 'q10',
     question: 'According to Proverbs 3:5, with what should believers trust in the LORD?',
-    options: ['All your heart', 'Half your strength', 'All your wealth', 'Your own wisdom'],
-    correctOptionIndex: 0,
+    options: ['Half your strength', 'All your wealth', 'Your own wisdom', 'All your heart'],
+    correctOptionIndex: 3, // Corrected position (All your heart)
     category: 'wisdom_psalms',
     hintReference: 'Proverbs 3:5–6',
     explanationHint: 'Proverbs 3:5–6',
@@ -159,8 +159,8 @@ export const QUESTIONS: Question[] = [
   {
     id: 'q11',
     question: 'According to Ecclesiastes chapter 3, for what is there an appointed time under heaven?',
-    options: ['For everything', 'For harvest only', 'For sorrow only', 'For kings only'],
-    correctOptionIndex: 0,
+    options: ['For harvest only', 'For everything', 'For sorrow only', 'For kings only'],
+    correctOptionIndex: 1, // Corrected position (For everything)
     category: 'wisdom_psalms',
     hintReference: 'Ecclesiastes 3:1–8',
     explanationHint: 'Ecclesiastes 3:1–8',
@@ -171,8 +171,8 @@ export const QUESTIONS: Question[] = [
   {
     id: 'q12',
     question: 'Which prophet prophesied that Messiah would be "pierced for our transgressions"?',
-    options: ['Isaiah', 'Jeremiah', 'Amos', 'Micah'],
-    correctOptionIndex: 0,
+    options: ['Jeremiah', 'Amos', 'Isaiah', 'Micah'],
+    correctOptionIndex: 2, // Corrected position (Isaiah)
     category: 'prophets',
     hintReference: 'Isaiah 53:1–12',
     explanationHint: 'Isaiah 53:1–12',
@@ -193,8 +193,8 @@ export const QUESTIONS: Question[] = [
   {
     id: 'q14',
     question: 'In which town was Jesus Christ born, as proclaimed by angels to local shepherds?',
-    options: ['Bethlehem', 'Nazareth', 'Jerusalem', 'Capernaum'],
-    correctOptionIndex: 0,
+    options: ['Nazareth', 'Jerusalem', 'Capernaum', 'Bethlehem'],
+    correctOptionIndex: 3, // Corrected position (Bethlehem)
     category: 'gospels',
     hintReference: 'Luke 2:1–20',
     explanationHint: 'Luke 2:1–20',
@@ -213,8 +213,8 @@ export const QUESTIONS: Question[] = [
   {
     id: 'q16',
     question: 'In John 3:16, what did God give to the world because He loved us so deeply?',
-    options: ['His only begotten Son', 'The Law of Moses', 'Earthly riches', 'A giant temple'],
-    correctOptionIndex: 0,
+    options: ['The Law of Moses', 'His only begotten Son', 'Earthly riches', 'A giant temple'],
+    correctOptionIndex: 1, // Corrected position (His only begotten Son)
     category: 'gospels',
     hintReference: 'John 3:16',
     explanationHint: 'John 3:16',
@@ -225,8 +225,8 @@ export const QUESTIONS: Question[] = [
   {
     id: 'q17',
     question: 'In Jesus’ parable of the Prodigal Son, who welcomed back the lost son with open arms?',
-    options: ['His Father', 'His Elder Brother', 'The Town Mayor', 'The Hired Servants'],
-    correctOptionIndex: 0,
+    options: ['His Elder Brother', 'The Town Mayor', 'His Father', 'The Hired Servants'],
+    correctOptionIndex: 2, // Corrected position (His Father)
     category: 'miracles_parables',
     hintReference: 'Luke 15:11–32',
     explanationHint: 'Luke 15:11–32',
@@ -235,8 +235,8 @@ export const QUESTIONS: Question[] = [
   {
     id: 'q18',
     question: 'What was Jesus’ first miracle performed during a wedding feast in Cana of Galilee?',
-    options: ['Turning water into wine', 'Calming the stormy sea', 'Walking on water', 'Healing a paralytic'],
-    correctOptionIndex: 0,
+    options: ['Calming the stormy sea', 'Walking on water', 'Healing a paralytic', 'Turning water into wine'],
+    correctOptionIndex: 3, // Corrected position (Turning water into wine)
     category: 'miracles_parables',
     hintReference: 'John 2:1–11',
     explanationHint: 'John 2:1–11',
@@ -245,8 +245,8 @@ export const QUESTIONS: Question[] = [
   {
     id: 'q19',
     question: 'With how many loaves and fish did Jesus miraculously feed 5,000 men?',
-    options: ['5 loaves and 2 fish', '7 loaves and 3 fish', '10 loaves and 5 fish', '2 loaves and 1 fish'],
-    correctOptionIndex: 0,
+    options: ['7 loaves and 3 fish', '5 loaves and 2 fish', '10 loaves and 5 fish', '2 loaves and 1 fish'],
+    correctOptionIndex: 1, // Corrected position (5 loaves and 2 fish)
     category: 'miracles_parables',
     hintReference: 'Matthew 14:13–21',
     explanationHint: 'Matthew 14:13–21',
@@ -257,8 +257,8 @@ export const QUESTIONS: Question[] = [
   {
     id: 'q20',
     question: 'On which feast day did the Holy Spirit descend upon the apostles as tongues of fire?',
-    options: ['Day of Pentecost', 'Passover', 'Feast of Tabernacles', 'Day of Atonement'],
-    correctOptionIndex: 0,
+    options: ['Passover', 'Feast of Tabernacles', 'Day of Pentecost', 'Day of Atonement'],
+    correctOptionIndex: 2, // Corrected position (Day of Pentecost)
     category: 'epistles',
     hintReference: 'Acts 2:1–13',
     explanationHint: 'Acts 2:1–13',
@@ -277,8 +277,8 @@ export const QUESTIONS: Question[] = [
   {
     id: 'q22',
     question: 'In 1 Corinthians 13:13, which virtue is declared to be the greatest of faith, hope, and love?',
-    options: ['Love', 'Faith', 'Hope', 'Knowledge'],
-    correctOptionIndex: 0,
+    options: ['Faith', 'Hope', 'Love', 'Knowledge'],
+    correctOptionIndex: 2, // Corrected position (Love)
     category: 'epistles',
     hintReference: '1 Corinthians 13:13',
     explanationHint: '1 Corinthians 13:13',
