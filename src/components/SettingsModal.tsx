@@ -1,20 +1,14 @@
 import React from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { useTranslation } from 'react-i18next';
+import { motion } from 'framer-motion';
 import {
   X,
+  Languages,
   Moon,
-  Sun,
   Volume2,
-  VolumeX,
   Clock,
-  BookOpen,
   RotateCcw,
   Info,
-  Check,
-  Languages,
-  MessageSquare,
-  Send,
+  Sliders,
 } from 'lucide-react';
 import { QuizSettings } from '../models';
 import { soundFx } from '../utils/sound';
@@ -24,7 +18,6 @@ interface SettingsModalProps {
   onUpdateSettings: (newSettings: Partial<QuizSettings>) => void;
   onClose: () => void;
   onResetStats: () => void;
-  onOpenFeedback: () => void;
 }
 
 export const SettingsModal: React.FC<SettingsModalProps> = ({
@@ -32,265 +25,220 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
   onUpdateSettings,
   onClose,
   onResetStats,
-  onOpenFeedback,
 }) => {
-  const { t, i18n } = useTranslation();
-  const questionCountOptions = [5, 10, 15, 20];
-
   const handleToggleSound = () => {
-    const nextVal = !settings.soundEnabled;
-    onUpdateSettings({ soundEnabled: nextVal });
-    soundFx.playClick(nextVal);
+    const updated = !settings.soundEnabled;
+    onUpdateSettings({ soundEnabled: updated });
+    if (updated) soundFx.playClick(true);
   };
 
-  const handleToggleDarkMode = () => {
-    soundFx.playClick(settings.soundEnabled);
-    onUpdateSettings({ darkMode: !settings.darkMode });
-  };
-
-  const handleToggleTimer = () => {
-    soundFx.playClick(settings.soundEnabled);
-    onUpdateSettings({ timerEnabled: !settings.timerEnabled });
-  };
-
-  const changeLanguage = (lng: string) => {
-    i18n.changeLanguage(lng);
-    onUpdateSettings({ language: lng });
+  const handleLanguageChange = (lang: 'English' | 'Urdu') => {
+    onUpdateSettings({ language: lang });
     soundFx.playClick(settings.soundEnabled);
   };
 
   return (
-    <div className="fixed inset-0 bg-slate-950/70 backdrop-blur-md z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 transition-opacity">
+    <div className="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
       <motion.div
-        initial={{ y: '100%', opacity: 0 }}
-        animate={{ y: '0%', opacity: 1 }}
-        exit={{ y: '100%', opacity: 0 }}
-        transition={{ type: 'spring', damping: 25, stiffness: 220 }}
-        className="w-full max-w-md bg-white dark:bg-slate-900 border-t sm:border border-slate-200 dark:border-slate-800 rounded-t-[2.5rem] sm:rounded-3xl p-6 shadow-2xl flex flex-col gap-5 max-h-[85vh] overflow-y-auto"
+        initial={{ scale: 0.95, opacity: 0 }}
+        animate={{ scale: 1, opacity: 1 }}
+        exit={{ scale: 0.95, opacity: 0 }}
+        /* ڈیسک ٹاپ پر بڑی اور چوڑا ڈیش بورڈ لے آؤٹ (max-w-3xl) اور موبائل پر ناہموار نہ لگنے والی سائزنگ */
+        className="w-full max-w-md md:max-w-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-6 md:p-8 shadow-2xl flex flex-col gap-6 max-h-[90vh] overflow-y-auto"
       >
         {/* Header */}
-        <div className="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-slate-800/80">
+        <div className="flex items-center justify-between pb-4 border-b border-slate-100 dark:border-slate-800">
           <div className="flex items-center gap-3">
-            <div className="p-2.5 bg-blue-50 dark:bg-blue-900/40 text-blue-600 dark:text-blue-400 rounded-2xl border border-blue-100 dark:border-blue-800/50">
-              <BookOpen className="w-5 h-5" />
+            <div className="p-3 bg-blue-100 dark:bg-blue-900/50 text-blue-600 dark:text-blue-400 rounded-2xl">
+              <Sliders className="w-6 h-6" />
             </div>
             <div>
-              <h2 className="text-base font-bold text-slate-900 dark:text-white font-serif tracking-wide">
-                {t('settings.title')}
+              <h2 className="text-lg md:text-xl font-bold text-slate-900 dark:text-white font-serif">
+                Quiz Settings / ترتیبات
               </h2>
-              <p className="text-xs text-slate-500 dark:text-slate-400">
-                Customize your Bible Quiz experience
+              <p className="text-xs md:text-sm text-slate-500 dark:text-slate-400">
+                Customize your Bible Quiz experience for desktop and mobile
               </p>
             </div>
           </div>
 
           <button
             onClick={onClose}
-            className="p-2 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-400 hover:text-slate-900 dark:hover:text-white transition active:scale-90"
+            type="button"
+            className="p-2.5 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-500 hover:text-slate-900 dark:hover:text-white transition cursor-pointer"
           >
             <X className="w-5 h-5" />
           </button>
         </div>
 
-        {/* Settings Form */}
-        <div className="flex flex-col gap-3.5 text-xs">
+        {/* Dynamic Responsive Grid: Desktop pe 2 Columns, Mobile pe 1 Column */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs md:text-sm">
           {/* Language Selector */}
-          <div className="p-4 bg-slate-50/80 dark:bg-slate-800/40 rounded-2xl border border-slate-200/60 dark:border-slate-800 flex flex-col gap-3">
-            <div className="flex items-center gap-2">
-              <Languages className="w-4 h-4 text-indigo-500" />
-              <span className="font-bold text-slate-800 dark:text-slate-200">
-                {t('common.language')}
-              </span>
+          <div className="flex flex-col gap-2 p-4 bg-slate-50 dark:bg-slate-800/50 rounded-2xl border border-slate-100 dark:border-slate-800">
+            <div className="flex items-center gap-2 font-bold text-slate-700 dark:text-slate-300">
+              <Languages className="w-4 h-4 text-blue-500" />
+              Language / زبان
             </div>
-            <div className="flex gap-2 overflow-x-auto pb-0.5 scrollbar-none">
-              {[
-                { code: 'en', name: 'English' },
-                { code: 'hi', name: 'हिंदी' },
-                { code: 'ur', name: 'اردو' },
-              ].map((lang) => {
-                const isSelected = i18n.language === lang.code;
-                return (
-                  <button
-                    key={lang.code}
-                    onClick={() => changeLanguage(lang.code)}
-                    className={`flex-1 min-w-[75px] py-2 px-3 rounded-xl font-bold transition text-center border ${
-                      isSelected
-                        ? 'bg-indigo-600 border-indigo-500 text-white shadow-sm'
-                        : 'bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-700 hover:border-slate-300'
-                    }`}
-                  >
-                    {lang.name}
-                  </button>
-                );
-              })}
+            <div className="grid grid-cols-2 gap-2 mt-1">
+              <button
+                type="button"
+                onClick={() => handleLanguageChange('English')}
+                className={`py-2.5 px-3 rounded-xl font-bold transition cursor-pointer ${
+                  settings.language === 'English'
+                    ? 'bg-blue-600 text-white shadow-md'
+                    : 'bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-400 border border-slate-200 dark:border-slate-700'
+                }`}
+              >
+                English
+              </button>
+              <button
+                type="button"
+                onClick={() => handleLanguageChange('Urdu')}
+                className={`py-2.5 px-3 rounded-xl font-bold transition cursor-pointer ${
+                  settings.language === 'Urdu'
+                    ? 'bg-emerald-600 text-white shadow-md'
+                    : 'bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-400 border border-slate-200 dark:border-slate-700'
+                }`}
+                dir="rtl"
+              >
+                اردو
+              </button>
             </div>
           </div>
 
           {/* Dark Mode */}
-          <div className="flex items-center justify-between p-4 bg-slate-50/80 dark:bg-slate-800/40 rounded-2xl border border-slate-200/60 dark:border-slate-800">
+          <div className="flex items-center justify-between p-4 bg-slate-50 dark:bg-slate-800/50 rounded-2xl border border-slate-100 dark:border-slate-800">
             <div className="flex items-center gap-3">
-              {settings.darkMode ? (
-                <Moon className="w-5 h-5 text-amber-400" />
-              ) : (
-                <Sun className="w-5 h-5 text-blue-600" />
-              )}
+              <Moon className="w-5 h-5 text-amber-500" />
               <div>
-                <span className="font-bold text-slate-800 dark:text-slate-200 block">
-                  {t('settings.dark_mode')}
-                </span>
-                <span className="text-[10px] text-slate-500 dark:text-slate-400">
+                <div className="font-bold text-slate-800 dark:text-slate-200">
+                  Dark Mode
+                </div>
+                <div className="text-xs text-slate-400">
                   {settings.darkMode ? 'Dark Theme Active' : 'Light Theme Active'}
-                </span>
+                </div>
               </div>
             </div>
-
             <button
-              onClick={handleToggleDarkMode}
-              className={`w-12 h-6.5 rounded-full p-1 transition-colors duration-200 flex items-center ${
-                settings.darkMode ? 'bg-amber-500 justify-end' : 'bg-slate-300 dark:bg-slate-700 justify-start'
+              type="button"
+              onClick={() => {
+                onUpdateSettings({ darkMode: !settings.darkMode });
+                soundFx.playClick(settings.soundEnabled);
+              }}
+              className={`w-14 h-7 flex items-center rounded-full p-1 transition-colors cursor-pointer ${
+                settings.darkMode ? 'bg-amber-500 justify-end' : 'bg-slate-300 justify-start'
               }`}
             >
-              <motion.div layout className="w-4 h-4 rounded-full bg-white shadow-md" />
+              <span className="w-5 h-5 rounded-full bg-white shadow-sm" />
             </button>
           </div>
 
-          {/* Question Count */}
-          <div className="p-4 bg-slate-50/80 dark:bg-slate-800/40 rounded-2xl border border-slate-200/60 dark:border-slate-800 flex flex-col gap-3">
-            <span className="font-bold text-slate-800 dark:text-slate-200 block">
-              {t('settings.question_count')}
-            </span>
-            <div className="grid grid-cols-4 gap-2">
-              {questionCountOptions.map((count) => {
-                const isSelected = settings.questionCount === count;
-                return (
-                  <button
-                    key={count}
-                    onClick={() => {
-                      soundFx.playClick(settings.soundEnabled);
-                      onUpdateSettings({ questionCount: count });
-                    }}
-                    className={`py-2 px-2.5 rounded-xl font-bold font-mono transition text-center flex items-center justify-center gap-1 border ${
-                      isSelected
-                        ? 'bg-blue-600 border-blue-500 text-white shadow-sm'
-                        : 'bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-700 hover:border-slate-300'
-                    }`}
-                  >
-                    {count} {isSelected && <Check className="w-3.5 h-3.5" />}
-                  </button>
-                );
-              })}
+          {/* Number of Questions */}
+          <div className="flex flex-col gap-2 p-4 bg-slate-50 dark:bg-slate-800/50 rounded-2xl border border-slate-100 dark:border-slate-800 md:col-span-2">
+            <div className="font-bold text-slate-700 dark:text-slate-300">
+              Number of Questions Per Quiz
+            </div>
+            <div className="grid grid-cols-4 gap-2 mt-1">
+              {[5, 10, 15, 20].map((num) => (
+                <button
+                  key={num}
+                  type="button"
+                  onClick={() => {
+                    onUpdateSettings({ questionsPerQuiz: num });
+                    soundFx.playClick(settings.soundEnabled);
+                  }}
+                  className={`py-2.5 rounded-xl font-bold transition cursor-pointer ${
+                    settings.questionsPerQuiz === num
+                      ? 'bg-blue-600 text-white shadow-md'
+                      : 'bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-400 border border-slate-200 dark:border-slate-700'
+                  }`}
+                >
+                  {num}
+                </button>
+              ))}
             </div>
           </div>
 
-          {/* Sound FX */}
-          <div className="flex items-center justify-between p-4 bg-slate-50/80 dark:bg-slate-800/40 rounded-2xl border border-slate-200/60 dark:border-slate-800">
+          {/* Sound Effects */}
+          <div className="flex items-center justify-between p-4 bg-slate-50 dark:bg-slate-800/50 rounded-2xl border border-slate-100 dark:border-slate-800">
             <div className="flex items-center gap-3">
-              {settings.soundEnabled ? (
-                <Volume2 className="w-5 h-5 text-emerald-500" />
-              ) : (
-                <VolumeX className="w-5 h-5 text-slate-400" />
-              )}
+              <Volume2 className="w-5 h-5 text-emerald-500" />
               <div>
-                <span className="font-bold text-slate-800 dark:text-slate-200 block">
-                  {t('settings.sound')}
-                </span>
-                <span className="text-[10px] text-slate-500 dark:text-slate-400">
+                <div className="font-bold text-slate-800 dark:text-slate-200">
+                  Sound Effects
+                </div>
+                <div className="text-xs text-slate-400">
                   {settings.soundEnabled ? 'Interactive Chimes On' : 'Muted'}
-                </span>
+                </div>
               </div>
             </div>
-
             <button
+              type="button"
               onClick={handleToggleSound}
-              className={`w-12 h-6.5 rounded-full p-1 transition-colors duration-200 flex items-center ${
-                settings.soundEnabled ? 'bg-emerald-500 justify-end' : 'bg-slate-300 dark:bg-slate-700 justify-start'
+              className={`w-14 h-7 flex items-center rounded-full p-1 transition-colors cursor-pointer ${
+                settings.soundEnabled ? 'bg-emerald-500 justify-end' : 'bg-slate-300 justify-start'
               }`}
             >
-              <motion.div layout className="w-4 h-4 rounded-full bg-white shadow-md" />
+              <span className="w-5 h-5 rounded-full bg-white shadow-sm" />
             </button>
           </div>
 
           {/* Question Timer */}
-          <div className="flex items-center justify-between p-4 bg-slate-50/80 dark:bg-slate-800/40 rounded-2xl border border-slate-200/60 dark:border-slate-800">
+          <div className="flex items-center justify-between p-4 bg-slate-50 dark:bg-slate-800/50 rounded-2xl border border-slate-100 dark:border-slate-800">
             <div className="flex items-center gap-3">
-              <Clock className="w-5 h-5 text-blue-500" />
+              <Clock className="w-5 h-5 text-purple-500" />
               <div>
-                <span className="font-bold text-slate-800 dark:text-slate-200 block">
+                <div className="font-bold text-slate-800 dark:text-slate-200">
                   Question Timer
-                </span>
-                <span className="text-[10px] text-slate-500 dark:text-slate-400">
-                  {settings.timerEnabled ? '20 Seconds Per Question' : 'No Timer Limit'}
-                </span>
+                </div>
+                <div className="text-xs text-slate-400">
+                  {settings.timerEnabled ? '30 Seconds Limit' : 'No Timer Limit'}
+                </div>
               </div>
             </div>
-
             <button
-              onClick={handleToggleTimer}
-              className={`w-12 h-6.5 rounded-full p-1 transition-colors duration-200 flex items-center ${
-                settings.timerEnabled ? 'bg-blue-600 justify-end' : 'bg-slate-300 dark:bg-slate-700 justify-start'
+              type="button"
+              onClick={() => {
+                onUpdateSettings({ timerEnabled: !settings.timerEnabled });
+                soundFx.playClick(settings.soundEnabled);
+              }}
+              className={`w-14 h-7 flex items-center rounded-full p-1 transition-colors cursor-pointer ${
+                settings.timerEnabled ? 'bg-purple-500 justify-end' : 'bg-slate-300 justify-start'
               }`}
             >
-              <motion.div layout className="w-4 h-4 rounded-full bg-white shadow-md" />
+              <span className="w-5 h-5 rounded-full bg-white shadow-sm" />
             </button>
           </div>
 
-          {/* Feedback */}
-          <div className="p-4 bg-slate-50/80 dark:bg-slate-800/40 rounded-2xl border border-slate-200/60 dark:border-slate-800 flex items-center justify-between">
+          {/* Reset Statistics */}
+          <div className="flex items-center justify-between p-4 bg-slate-50 dark:bg-slate-800/50 rounded-2xl border border-slate-100 dark:border-slate-800 md:col-span-2">
             <div className="flex items-center gap-3">
-              <MessageSquare className="w-5 h-5 text-indigo-500" />
+              <RotateCcw className="w-5 h-5 text-red-500" />
               <div>
-                <span className="font-bold text-slate-800 dark:text-slate-200 block">
-                  {t('settings.feedback')}
-                </span>
-                <span className="text-[10px] text-slate-500 dark:text-slate-400">
-                  Share your thoughts with us
-                </span>
+                <div className="font-bold text-slate-800 dark:text-slate-200">
+                  Reset Statistics
+                </div>
+                <div className="text-xs text-slate-400">
+                  Clear score and streak history
+                </div>
               </div>
             </div>
-
             <button
-              onClick={() => {
-                soundFx.playClick(settings.soundEnabled);
-                onOpenFeedback();
-              }}
-              className="px-3.5 py-1.5 rounded-xl bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400 font-bold text-xs border border-indigo-200 dark:border-indigo-800/60 flex items-center gap-1.5 hover:bg-indigo-100 transition active:scale-95"
+              type="button"
+              onClick={onResetStats}
+              className="px-4 py-2 bg-red-500 hover:bg-red-600 text-white font-bold rounded-xl transition shadow-md active:scale-95 cursor-pointer flex items-center gap-2 text-xs md:text-sm"
             >
-              <Send className="w-3.5 h-3.5" /> Send
+              <RotateCcw className="w-4 h-4" /> Reset Stats
             </button>
           </div>
+        </div>
 
-          {/* Reset Stats */}
-          <div className="p-4 bg-slate-50/80 dark:bg-slate-800/40 rounded-2xl border border-slate-200/60 dark:border-slate-800 flex items-center justify-between">
-            <div>
-              <span className="font-bold text-slate-800 dark:text-slate-200 block">
-                {t('settings.reset_stats')}
-              </span>
-              <span className="text-[10px] text-slate-500 dark:text-slate-400">
-                Clear score and streak history
-              </span>
-            </div>
-
-            <button
-              onClick={() => {
-                if (confirm('Are you sure you want to reset your quiz statistics?')) {
-                  onResetStats();
-                }
-              }}
-              className="px-3.5 py-1.5 rounded-xl bg-rose-50 dark:bg-rose-950/60 text-rose-600 dark:text-rose-400 font-bold text-xs border border-rose-200 dark:border-rose-800/60 flex items-center gap-1.5 hover:bg-rose-100 transition active:scale-95"
-            >
-              <RotateCcw className="w-3.5 h-3.5" /> Reset
-            </button>
-          </div>
-
-          {/* App Info Note */}
-          <div className="p-4 bg-blue-50/70 dark:bg-blue-950/40 rounded-2xl border border-blue-200/60 dark:border-blue-900/40 flex items-start gap-3 text-xs text-blue-900 dark:text-blue-300 leading-relaxed">
-            <Info className="w-4 h-4 text-blue-600 dark:text-blue-400 shrink-0 mt-0.5" />
-            <div>
-              <span className="font-bold block text-blue-950 dark:text-blue-200 mb-0.5">
-                Bible Quiz World Principles:
-              </span>
-              This app encourages Scripture study. All questions provide references—open your personal Bible to read and verify every passage!
-            </div>
+        {/* Principles Note */}
+        <div className="p-4 bg-blue-50 dark:bg-blue-950/40 rounded-2xl border border-blue-100 dark:border-blue-900/50 text-xs md:text-sm text-blue-900 dark:text-blue-300 flex items-start gap-3">
+          <Info className="w-5 h-5 text-blue-500 shrink-0 mt-0.5" />
+          <div>
+            <div className="font-bold mb-0.5">Bible Quiz World Principles:</div>
+            This app encourages Scripture study. All questions provide references—open your personal Bible to read and verify every passage!
           </div>
         </div>
       </motion.div>
