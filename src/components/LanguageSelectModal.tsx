@@ -1,4 +1,4 @@
-import React from 'react';
+import { useTranslation } from 'react-i18next';
 import { motion } from 'framer-motion';
 import { setSavedLanguage } from '../utils/storage';
 
@@ -7,7 +7,10 @@ interface Props {
 }
 
 export const LanguageSelectModal: React.FC<Props> = ({ onSelectLanguage }) => {
+  const { i18n } = useTranslation(); // 👈 i18n کا ہک استعمال کیا
+
   const handleSelect = (lang: 'en' | 'ur') => {
+    i18n.changeLanguage(lang); // 👈 فوراً ایپ کی زبان بدل دی
     setSavedLanguage(lang);
     onSelectLanguage(lang);
   };

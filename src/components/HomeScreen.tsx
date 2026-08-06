@@ -2,7 +2,6 @@ import React from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { useTranslation } from 'react-i18next';
 import {
-  Play,
   BookOpen,
   Scroll,
   Cross,
@@ -19,6 +18,7 @@ import {
   Settings as SettingsIcon,
   ShieldCheck,
   MessageSquare,
+  Play,
 } from 'lucide-react';
 import { Category, CategoryId, UserStats } from '../models';
 
@@ -99,7 +99,7 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
           </div>
           <div>
             <h1 className="text-xl font-bold tracking-tight font-serif text-slate-900 dark:text-white flex items-center gap-1.5">
-              Bible Quiz <span className="text-amber-500 dark:text-amber-400">World</span>
+              {t('common.app_name', 'Bible Quiz World')}
             </h1>
             <p className="text-xs text-slate-500 dark:text-slate-400 font-medium">
               {t('common.welcome')}
@@ -108,7 +108,7 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
         </div>
 
         <div className="flex items-center gap-2">
-          {/* Admin Panel Button - Hidden by default */}
+          {/* Admin Panel Button */}
           {showAdminButton && (
             <button
               onClick={onOpenAdmin}
@@ -120,21 +120,21 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
             </button>
           )}
 
-          {/* Feedback Outer Button */}
+          {/* Feedback Button */}
           <button
             onClick={onOpenFeedback}
             className="px-3 py-2 rounded-2xl bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 hover:bg-indigo-500/20 border border-indigo-400/30 transition shadow-sm active:scale-95 flex items-center gap-1.5 text-xs font-bold cursor-pointer"
             title="Send Feedback"
           >
             <MessageSquare className="w-4 h-4" />
-            <span className="hidden sm:inline">Feedback</span>
+            <span className="hidden sm:inline">{t('settings.feedback', 'Feedback')}</span>
           </button>
 
           {/* Settings Trigger */}
           <button
             onClick={onOpenSettings}
             className="p-2.5 rounded-2xl bg-slate-200/70 dark:bg-slate-800 text-slate-700 dark:text-slate-200 hover:bg-slate-300 dark:hover:bg-slate-700 transition shadow-sm active:scale-95 cursor-pointer"
-            aria-label="Settings"
+            aria-label={t('common.settings')}
           >
             <SettingsIcon className="w-5 h-5" />
           </button>
@@ -148,7 +148,7 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
             {t('home.select_category')}
           </h2>
           <span className="text-xs text-blue-600 dark:text-blue-400 font-semibold">
-            {activeCategories.length} Topics
+            {activeCategories.length} {t('home.topics', 'Topics')}
           </span>
         </div>
 
@@ -230,7 +230,7 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
             {stats.xpPoints}
           </span>
           <span className="text-[11px] font-medium text-slate-500 dark:text-slate-400">
-            XP Points
+            {t('home.xp_points', 'XP Points')}
           </span>
         </div>
       </div>
@@ -239,10 +239,10 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
       <div className="flex flex-col gap-3 pt-2">
         <div className="flex items-center justify-between">
           <h2 className="text-sm font-bold uppercase tracking-wider text-slate-600 dark:text-slate-300">
-            More Study Tools
+            {t('home.more_study_tools', 'More Study Tools')}
           </h2>
           <span className="text-[10px] font-semibold bg-amber-400/20 text-amber-600 dark:text-amber-400 px-2 py-0.5 rounded-full border border-amber-400/30">
-            Future Ready
+            {t('home.future_ready', 'Future Ready')}
           </span>
         </div>
 
@@ -257,10 +257,10 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
             </div>
             <div>
               <span className="block text-xs font-bold text-slate-800 dark:text-slate-200">
-                Flashcards
+                {t('home.flashcards', 'Flashcards')}
               </span>
               <span className="block text-[10px] text-slate-500 dark:text-slate-400">
-                Memory Verses
+                {t('home.memory_verses', 'Memory Verses')}
               </span>
             </div>
           </button>
@@ -275,10 +275,10 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
             </div>
             <div>
               <span className="block text-xs font-bold text-slate-800 dark:text-slate-200">
-                Daily Quest
+                {t('home.daily_quest', 'Daily Quest')}
               </span>
               <span className="block text-[10px] text-slate-500 dark:text-slate-400">
-                Earn XP
+                {t('home.earn_xp', 'Earn XP')}
               </span>
             </div>
           </button>
@@ -293,10 +293,10 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
             </div>
             <div>
               <span className="block text-xs font-bold text-slate-800 dark:text-slate-200">
-                Bookmarks
+                {t('home.bookmarks', 'Bookmarks')}
               </span>
               <span className="block text-[10px] text-slate-500 dark:text-slate-400">
-                Saved Verses
+                {t('home.saved_verses', 'Saved Verses')}
               </span>
             </div>
           </button>
@@ -311,10 +311,10 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
             </div>
             <div>
               <span className="block text-xs font-bold text-slate-800 dark:text-slate-200">
-                Study Notes
+                {t('home.study_notes', 'Study Notes')}
               </span>
               <span className="block text-[10px] text-slate-500 dark:text-slate-400">
-                Personal Journal
+                {t('home.personal_journal', 'Personal Journal')}
               </span>
             </div>
           </button>

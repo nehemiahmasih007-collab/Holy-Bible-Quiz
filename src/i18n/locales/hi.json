@@ -1,7 +1,7 @@
 {
   "common": {
-    "app_name": "Bible Quiz World",
-    "welcome": "बाइबल क्विज़ वर्ल्ड में आपका स्वागत है",
+    "app_name": "Bible Quiz",
+    "welcome": "बाइबल क्विज़ में आपका स्वागत है",
     "start_quiz": "क्विज़ शुरू करें",
     "settings": "सेटिंग्स",
     "admin": "एडमिन",
@@ -24,7 +24,7 @@
     "sound": "ध्वनि प्रभाव",
     "question_count": "प्रश्नों की संख्या",
     "reset_stats": "आंकड़े रीसेट करें",
-    "feedback": "प्रतिक्रिया भेजیں",
+    "feedback": "प्रतिक्रिया भेजी",
     "close": "बंद करें"
   },
   "feedback": {

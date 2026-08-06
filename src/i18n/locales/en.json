@@ -1,7 +1,7 @@
 {
   "common": {
-    "app_name": "Bible Quiz World",
-    "welcome": "Welcome to Bible Quiz World",
+    "app_name": "Bible Quiz",
+    "welcome": "Welcome to Bible Quiz",
     "start_quiz": "Start Quiz",
     "settings": "Settings",
     "admin": "Admin",
