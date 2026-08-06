@@ -32,29 +32,43 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
   const handleToggleSound = () => {
     const updated = !settings.soundEnabled;
     onUpdateSettings({ soundEnabled: updated });
-    if (updated) soundFx.playClick(true);
+    if (updated) {
+      try {
+        (soundFx as any)?.playClick?.(true);
+      } catch (e) {}
+    }
   };
 
-  const handleLanguageChange = (lang: 'English' | 'Urdu') => {
+  const handleLanguageChange = async (lang: 'English' | 'Urdu') => {
     const langCode = lang === 'Urdu' ? 'ur' : 'en';
 
-    // 1. i18n کی زبان کو فوری تبدیل کریں
-    i18n.changeLanguage(langCode);
+    try {
+      // 1. i18n زبان کو فوراً بدلے گا
+      await i18n.changeLanguage(langCode);
 
-    // 2. LocalStorage کو فوراً سنک کریں
-    localStorage.setItem('i18nextLng', langCode);
-    localStorage.setItem('appLanguage', langCode);
+      // 2. LocalStorage میں سیو کریں
+      localStorage.setItem('i18nextLng', langCode);
+      localStorage.setItem('appLanguage', langCode);
 
-    // 3. Document کا Layout Direction (RTL/LTR) تبدیل کریں
-    document.dir = langCode === 'ur' ? 'rtl' : 'ltr';
-    document.documentElement.lang = langCode;
+      // 3. Parent Settings State اپڈیٹ کریں
+      onUpdateSettings({
+        language: lang,
+        // compatibility کے لیے دونوں نام سپورٹ کر دیے ہیں
+        questionCount: (settings as any).questionCount || (settings as any).questionsPerQuiz || 10,
+      } as any);
 
-    // 4. Parents State / Settings کو اپڈیٹ کریں
-    onUpdateSettings({ language: lang });
-
-    // 5. ساؤنڈ پلے کریں
-    soundFx.playClick(settings.soundEnabled);
+      // 4. Sound Effect
+      if (settings.soundEnabled) {
+        (soundFx as any)?.playClick?.(true);
+      }
+    } catch (error) {
+      console.error('Language Change Error:', error);
+    }
   };
+
+  // سوالات کی تعداد نکالنے کا Safe طریقہ
+  const currentQuestionCount =
+    (settings as any).questionCount || (settings as any).questionsPerQuiz || 10;
 
   return (
     <div className="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
@@ -134,8 +148,8 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                   {t('settings.dark_mode', 'Dark Mode')}
                 </div>
                 <div className="text-xs text-slate-400">
-                  {settings.darkMode 
-                    ? t('settings.dark_theme_active', 'Dark Theme Active') 
+                  {settings.darkMode
+                    ? t('settings.dark_theme_active', 'Dark Theme Active')
                     : t('settings.light_theme_active', 'Light Theme Active')}
                 </div>
               </div>
@@ -144,7 +158,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
               type="button"
               onClick={() => {
                 onUpdateSettings({ darkMode: !settings.darkMode });
-                soundFx.playClick(settings.soundEnabled);
+                if (settings.soundEnabled) (soundFx as any)?.playClick?.(true);
               }}
               className={`w-14 h-7 flex items-center rounded-full p-1 transition-colors cursor-pointer ${
                 settings.darkMode ? 'bg-amber-500 justify-end' : 'bg-slate-300 justify-start'
@@ -165,11 +179,14 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                   key={num}
                   type="button"
                   onClick={() => {
-                    onUpdateSettings({ questionsPerQuiz: num });
-                    soundFx.playClick(settings.soundEnabled);
+                    onUpdateSettings({
+                      questionCount: num,
+                      questionsPerQuiz: num,
+                    } as any);
+                    if (settings.soundEnabled) (soundFx as any)?.playClick?.(true);
                   }}
                   className={`py-2.5 rounded-xl font-bold transition cursor-pointer ${
-                    settings.questionsPerQuiz === num
+                    currentQuestionCount === num
                       ? 'bg-blue-600 text-white shadow-md'
                       : 'bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-400 border border-slate-200 dark:border-slate-700'
                   }`}
@@ -189,8 +206,8 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                   {t('settings.sound', 'Sound Effects')}
                 </div>
                 <div className="text-xs text-slate-400">
-                  {settings.soundEnabled 
-                    ? t('settings.sound_on', 'Interactive Chimes On') 
+                  {settings.soundEnabled
+                    ? t('settings.sound_on', 'Interactive Chimes On')
                     : t('settings.sound_muted', 'Muted')}
                 </div>
               </div>
@@ -215,8 +232,8 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                   {t('settings.timer', 'Question Timer')}
                 </div>
                 <div className="text-xs text-slate-400">
-                  {settings.timerEnabled 
-                    ? t('settings.timer_on', '30 Seconds Limit') 
+                  {settings.timerEnabled
+                    ? t('settings.timer_on', '30 Seconds Limit')
                     : t('settings.timer_off', 'No Timer Limit')}
                 </div>
               </div>
@@ -225,7 +242,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
               type="button"
               onClick={() => {
                 onUpdateSettings({ timerEnabled: !settings.timerEnabled });
-                soundFx.playClick(settings.soundEnabled);
+                if (settings.soundEnabled) (soundFx as any)?.playClick?.(true);
               }}
               className={`w-14 h-7 flex items-center rounded-full p-1 transition-colors cursor-pointer ${
                 settings.timerEnabled ? 'bg-purple-500 justify-end' : 'bg-slate-300 justify-start'
@@ -262,7 +279,9 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
         <div className="p-4 bg-blue-50 dark:bg-blue-950/40 rounded-2xl border border-blue-100 dark:border-blue-900/50 text-xs md:text-sm text-blue-900 dark:text-blue-300 flex items-start gap-3">
           <Info className="w-5 h-5 text-blue-500 shrink-0 mt-0.5" />
           <div>
-            <div className="font-bold mb-0.5">{t('settings.principles_title', 'Bible Quiz World Principles:')}</div>
+            <div className="font-bold mb-0.5">
+              {t('settings.principles_title', 'Bible Quiz World Principles:')}
+            </div>
             {t('settings.principles_desc', 'This app encourages Scripture study. All questions provide references—open your personal Bible to read and verify every passage!')}
           </div>
         </div>

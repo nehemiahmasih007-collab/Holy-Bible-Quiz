@@ -32,6 +32,7 @@ const DEFAULT_SETTINGS: QuizSettings = {
   darkMode: true,
   timerEnabled: false,
   timePerQuestion: 20,
+  language: 'English',
 };
 
 const DEFAULT_STATS: UserStats = {
@@ -51,7 +52,7 @@ export default function App() {
   const [isFeedbackOpen, setIsFeedbackOpen] = useState<boolean>(false);
   const [futureFeatureModal, setFutureFeatureModal] = useState<string | null>(null);
   const [showLangModal, setShowLangModal] = useState<boolean>(
-    !localStorage.getItem('bible_quiz_selected_language')
+    !localStorage.getItem('bible_quiz_selected_language') && !localStorage.getItem('i18nextLng')
   );
 
   // Dynamic DB Reactive State
@@ -91,7 +92,6 @@ export default function App() {
 
   useEffect(() => {
     loadDataFromDatabase();
-    // Subscribe to DB change events
     const unsubscribe = databaseService.subscribe(() => {
       loadDataFromDatabase();
     });
@@ -102,7 +102,12 @@ export default function App() {
   const [settings, setSettings] = useState<QuizSettings>(() => {
     try {
       const saved = localStorage.getItem('bible_quiz_settings');
-      return saved ? { ...DEFAULT_SETTINGS, ...JSON.parse(saved) } : DEFAULT_SETTINGS;
+      const savedLang = localStorage.getItem('i18nextLng') || localStorage.getItem('appLanguage');
+      const mappedLang = savedLang === 'ur' ? 'Urdu' : 'English';
+      
+      return saved 
+        ? { ...DEFAULT_SETTINGS, language: mappedLang, ...JSON.parse(saved) } 
+        : { ...DEFAULT_SETTINGS, language: mappedLang };
     } catch {
       return DEFAULT_SETTINGS;
     }
@@ -120,10 +125,15 @@ export default function App() {
 
   const { i18n } = useTranslation();
 
-  // Sync i18n with settings
+  // Sync i18n with settings state and document attribute
   useEffect(() => {
-    if (settings.language && i18n.language !== settings.language) {
-      i18n.changeLanguage(settings.language);
+    if (settings.language) {
+      const langCode = settings.language === 'Urdu' ? 'ur' : 'en';
+      if (i18n.language !== langCode) {
+        i18n.changeLanguage(langCode);
+      }
+      document.dir = langCode === 'ur' ? 'rtl' : 'ltr';
+      document.documentElement.lang = langCode;
     }
   }, [settings.language, i18n]);
 
@@ -161,7 +171,10 @@ export default function App() {
   }, [settings.darkMode]);
 
   const handleUpdateSettings = (newSettings: Partial<QuizSettings>) => {
-    setSettings((prev) => ({ ...prev, ...newSettings }));
+    setSettings((prev) => {
+      const updated = { ...prev, ...newSettings };
+      return updated;
+    });
   };
 
   const handleResetStats = () => {
@@ -176,11 +189,9 @@ export default function App() {
       pool = await storageService.getQuestionsAsync();
     }
 
-    // Filter by current UI language
     const currentLang = i18n.language || 'en';
     const langFiltered = pool.filter((q) => q.language === currentLang);
 
-    // Fallback to English if no matching questions exist for the language
     pool = langFiltered.length > 0 ? langFiltered : pool.filter((q) => q.language === 'en' || !q.language);
 
     if (selectedCategory && selectedCategory !== 'all') {
@@ -188,9 +199,9 @@ export default function App() {
       if (filtered.length > 0) pool = filtered;
     }
 
-    // Fisher-Yates Shuffle algorithm
     const shuffled = [...pool].sort(() => Math.random() - 0.5);
-    const selectedQuestions = shuffled.slice(0, Math.min(settings.questionCount, shuffled.length));
+    const count = (settings as any).questionCount || (settings as any).questionsPerQuiz || 10;
+    const selectedQuestions = shuffled.slice(0, Math.min(count, shuffled.length));
 
     setQuizQuestions(selectedQuestions);
     setCurrentQuestionIndex(0);
@@ -199,7 +210,6 @@ export default function App() {
     setScreen('quiz');
   };
 
-  // Select Answer Option
   const handleSelectOption = (questionIndex: number, optionIndex: number) => {
     setUserAnswers((prev) => {
       const updated = [...prev];
@@ -208,7 +218,6 @@ export default function App() {
     });
   };
 
-  // Navigation inside Quiz
   const handleNextQuestion = () => {
     if (currentQuestionIndex < quizQuestions.length - 1) {
       setCurrentQuestionIndex((prev) => prev + 1);
@@ -221,7 +230,6 @@ export default function App() {
     }
   };
 
-  // Submit Quiz Session & Calculate Results
   const handleSubmitQuiz = async () => {
     let correct = 0;
     quizQuestions.forEach((q, idx) => {
@@ -246,7 +254,6 @@ export default function App() {
       streakDays: Math.max(1, prev.streakDays),
     }));
 
-    // Record history entry in IndexedDB / Storage
     await databaseService.addQuizHistory({
       category: selectedCategory,
       totalQuestions: total,
@@ -259,7 +266,6 @@ export default function App() {
     setScreen('result');
   };
 
-  // Bookmarking question references
   const handleToggleBookmark = async (id: string) => {
     setStats((prev) => {
       const exists = prev.bookmarkedQuestionIds.includes(id);
@@ -360,9 +366,13 @@ export default function App() {
         {showLangModal && (
           <LanguageSelectModal
             onSelectLanguage={(lang) => {
-              i18n.changeLanguage(lang);
-              handleUpdateSettings({ language: lang });
-              localStorage.setItem('bible_quiz_selected_language', lang);
+              const langCode = lang === 'Urdu' || lang === 'ur' ? 'ur' : 'en';
+              const langName = langCode === 'ur' ? 'Urdu' : 'English';
+              
+              i18n.changeLanguage(langCode);
+              handleUpdateSettings({ language: langName });
+              localStorage.setItem('i18nextLng', langCode);
+              localStorage.setItem('bible_quiz_selected_language', langName);
               setShowLangModal(false);
             }}
           />

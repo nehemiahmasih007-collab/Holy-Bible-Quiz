@@ -6,7 +6,6 @@ import enTranslations from './locales/en.json';
 import urTranslations from './locales/ur.json';
 import hiTranslations from './locales/hi.json';
 
-// Define the structure of the resources
 const resources = {
   en: {
     translation: enTranslations,
@@ -26,25 +25,29 @@ i18n
     resources,
     fallbackLng: 'en',
     interpolation: {
-      escapeValue: false, // react already safes from xss
+      escapeValue: false,
     },
     detection: {
       order: ['localStorage', 'navigator'],
+      lookupLocalStorage: 'i18nextLng',
       caches: ['localStorage'],
+    },
+    react: {
+      useSuspense: false, // زبان چینج ہوتے ہی انسٹنٹ ری رینڈر کرے گا
     },
   });
 
-// Handle RTL for Urdu
+// RTL layout اور Font Management
 i18n.on('languageChanged', (lng) => {
   const dir = lng === 'ur' ? 'rtl' : 'ltr';
   document.documentElement.dir = dir;
   document.documentElement.lang = lng;
+  document.dir = dir;
 
-  // Optional: Update font-family for Urdu if needed
   if (lng === 'ur') {
     document.body.style.fontFamily = "'Noto Nastaliq Urdu', serif, system-ui";
   } else {
-    document.body.style.fontFamily = "";
+    document.body.style.fontFamily = '';
   }
 });
 
