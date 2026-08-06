@@ -19,6 +19,7 @@ interface SettingsModalProps {
   onUpdateSettings: (newSettings: Partial<QuizSettings>) => void;
   onClose: () => void;
   onResetStats: () => void;
+  onOpenFeedback?: () => void;
 }
 
 export const SettingsModal: React.FC<SettingsModalProps> = ({

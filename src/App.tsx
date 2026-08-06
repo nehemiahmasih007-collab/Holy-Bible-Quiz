@@ -103,10 +103,10 @@ export default function App() {
     try {
       const saved = localStorage.getItem('bible_quiz_settings');
       const savedLang = localStorage.getItem('i18nextLng') || localStorage.getItem('appLanguage');
-      const mappedLang = savedLang === 'ur' ? 'Urdu' : 'English';
-      
-      return saved 
-        ? { ...DEFAULT_SETTINGS, language: mappedLang, ...JSON.parse(saved) } 
+      const mappedLang = String(savedLang) === 'ur' ? 'Urdu' : 'English';
+
+      return saved
+        ? { ...DEFAULT_SETTINGS, language: mappedLang, ...JSON.parse(saved) }
         : { ...DEFAULT_SETTINGS, language: mappedLang };
     } catch {
       return DEFAULT_SETTINGS;
@@ -303,6 +303,7 @@ export default function App() {
             onSelectCategory={setSelectedCategory}
             onStartQuiz={handleStartQuiz}
             onOpenSettings={() => setIsSettingsOpen(true)}
+            onOpenFeedback={() => setIsFeedbackOpen(true)}
             onOpenAdmin={() => setScreen('admin_login')}
             onOpenFutureFeature={(featureName) => setFutureFeatureModal(featureName)}
           />
@@ -366,7 +367,8 @@ export default function App() {
         {showLangModal && (
           <LanguageSelectModal
             onSelectLanguage={(lang) => {
-              const langCode = lang === 'Urdu' || lang === 'ur' ? 'ur' : 'en';
+              const langStr = String(lang);
+              const langCode = langStr === 'Urdu' || langStr === 'ur' ? 'ur' : 'en';
               const langName = langCode === 'ur' ? 'Urdu' : 'English';
               
               i18n.changeLanguage(langCode);
