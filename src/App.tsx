@@ -18,13 +18,17 @@ import { AndroidFrame } from './components/AndroidFrame';
 import { SplashScreen } from './components/SplashScreen';
 import { HomeScreen } from './components/HomeScreen';
 import { QuizScreen } from './components/QuizScreen';
+import { QuestionScreen } from './components/QuestionScreen';
 import { ResultScreen } from './components/ResultScreen';
 import { SettingsModal } from './components/SettingsModal';
 import { FeedbackModal } from './components/FeedbackModal';
 import { FuturePreviewModal } from './components/FuturePreviewModal';
 import { LanguageSelectModal } from './components/LanguageSelectModal';
+import { CategorySelectScreen } from './components/CategorySelectScreen';
+import { QuestionCategoryScreen } from './components/QuestionCategoryScreen';
 import { AdminLogin } from './admin/AdminLogin';
 import { AdminDashboard } from './admin/AdminDashboard';
+import { BottomNavigation } from './components/BottomNavigation';
 
 const DEFAULT_SETTINGS: QuizSettings = {
   questionCount: 10,
@@ -171,10 +175,7 @@ export default function App() {
   }, [settings.darkMode]);
 
   const handleUpdateSettings = (newSettings: Partial<QuizSettings>) => {
-    setSettings((prev) => {
-      const updated = { ...prev, ...newSettings };
-      return updated;
-    });
+    setSettings((prev) => ({ ...prev, ...newSettings }));
   };
 
   const handleResetStats = () => {
@@ -182,8 +183,8 @@ export default function App() {
     localStorage.removeItem('bible_quiz_stats');
   };
 
-  // Start a new Quiz Session using live questionsList from database
-  const handleStartQuiz = async () => {
+  // Prepare questions for Quiz or Question Screen
+  const prepareQuestions = async (overrideCategory?: CategoryId, bookFilter?: string) => {
     let pool = questionsList;
     if (pool.length === 0) {
       pool = await storageService.getQuestionsAsync();
@@ -191,23 +192,53 @@ export default function App() {
 
     const currentLang = i18n.language || 'en';
     const langFiltered = pool.filter((q) => q.language === currentLang);
-
     pool = langFiltered.length > 0 ? langFiltered : pool.filter((q) => q.language === 'en' || !q.language);
 
-    if (selectedCategory && selectedCategory !== 'all') {
-      const filtered = pool.filter((q) => q.category === selectedCategory);
-      if (filtered.length > 0) pool = filtered;
+    if (bookFilter) {
+      const bookFiltered = pool.filter((q) => q.category?.toLowerCase() === bookFilter.toLowerCase());
+      if (bookFiltered.length > 0) pool = bookFiltered;
+    } else {
+      const catToUse = overrideCategory !== undefined ? overrideCategory : selectedCategory;
+      if (catToUse && catToUse !== 'all') {
+        const filtered = pool.filter((q) => q.category === catToUse);
+        if (filtered.length > 0) pool = filtered;
+      }
     }
 
     const shuffled = [...pool].sort(() => Math.random() - 0.5);
     const count = (settings as any).questionCount || (settings as any).questionsPerQuiz || 10;
-    const selectedQuestions = shuffled.slice(0, Math.min(count, shuffled.length));
+    return shuffled.slice(0, Math.min(count, shuffled.length));
+  };
 
+  // Start Standard MCQs Quiz with specific Category
+  const handleStartQuizWithCategory = async (catId: CategoryId) => {
+    setSelectedCategory(catId);
+    const selectedQuestions = await prepareQuestions(catId);
     setQuizQuestions(selectedQuestions);
     setCurrentQuestionIndex(0);
     setUserAnswers(new Array(selectedQuestions.length).fill(null));
     setQuizStartTime(Date.now());
     setScreen('quiz');
+  };
+
+  // Start Standard MCQs Quiz (fallback using selectedCategory)
+  const handleStartQuiz = async () => {
+    const selectedQuestions = await prepareQuestions();
+    setQuizQuestions(selectedQuestions);
+    setCurrentQuestionIndex(0);
+    setUserAnswers(new Array(selectedQuestions.length).fill(null));
+    setQuizStartTime(Date.now());
+    setScreen('quiz');
+  };
+
+  // Start Open Question Screen Mode for specific Book
+  const handleStartQuestionModeForBook = async (bookName: string) => {
+    const selectedQuestions = await prepareQuestions(undefined, bookName);
+    setQuizQuestions(selectedQuestions);
+    setCurrentQuestionIndex(0);
+    setUserAnswers(new Array(selectedQuestions.length).fill(null));
+    setQuizStartTime(Date.now());
+    setScreen('question');
   };
 
   const handleSelectOption = (questionIndex: number, optionIndex: number) => {
@@ -283,84 +314,126 @@ export default function App() {
     }
   };
 
+  const isUserScreen = ['home', 'quiz', 'question', 'result', 'categories'].includes(screen);
+
   return (
     <AndroidFrame
       settings={settings}
       onUpdateSettings={handleUpdateSettings}
       onOpenSettings={() => setIsSettingsOpen(true)}
     >
-      <AnimatePresence mode="wait">
-        {screen === 'splash' && (
-          <SplashScreen key="splash" onComplete={() => setScreen('home')} />
-        )}
+      <div className={`flex-1 flex flex-col h-full overflow-hidden ${isUserScreen ? 'pb-16' : ''}`}>
+        <AnimatePresence mode="wait">
+          {screen === 'splash' && (
+            <SplashScreen key="splash" onComplete={() => setScreen('home')} />
+          )}
 
-        {screen === 'home' && (
-          <HomeScreen
-            key="home"
-            stats={stats}
-            categories={categoriesList}
-            selectedCategory={selectedCategory}
-            onSelectCategory={setSelectedCategory}
-            onStartQuiz={handleStartQuiz}
-            onOpenSettings={() => setIsSettingsOpen(true)}
-            onOpenFeedback={() => setIsFeedbackOpen(true)}
-            onOpenAdmin={() => setScreen('admin_login')}
-            onOpenFutureFeature={(featureName) => setFutureFeatureModal(featureName)}
-          />
-        )}
+          {screen === 'home' && (
+            <HomeScreen
+              key="home"
+              stats={stats}
+              categories={categoriesList}
+              selectedCategory={selectedCategory}
+              onSelectCategory={setSelectedCategory}
+              onStartQuiz={handleStartQuiz}
+              onOpenSettings={() => setIsSettingsOpen(true)}
+              onOpenFeedback={() => setIsFeedbackOpen(true)}
+              onOpenAdmin={() => setScreen('admin_login')}
+              onOpenFutureFeature={(featureName) => {
+                if (featureName === 'question' || featureName === 'Question Screen') {
+                  setScreen('question');
+                } else {
+                  setFutureFeatureModal(featureName);
+                }
+              }}
+            />
+          )}
 
-        {screen === 'quiz' && (
-          <QuizScreen
-            key="quiz"
-            questions={quizQuestions}
-            currentQuestionIndex={currentQuestionIndex}
-            userAnswers={userAnswers}
-            onSelectOption={handleSelectOption}
-            onNextQuestion={handleNextQuestion}
-            onPrevQuestion={handlePrevQuestion}
-            onSubmitQuiz={handleSubmitQuiz}
-            onExitQuiz={() => setScreen('home')}
-            settings={settings}
-            bookmarkedIds={stats.bookmarkedQuestionIds}
-            onToggleBookmark={handleToggleBookmark}
-          />
-        )}
+          {screen === 'categories' && (
+            <CategorySelectScreen
+              key="categories"
+              categories={categoriesList}
+              onSelectCategoryAndStart={handleStartQuizWithCategory}
+            />
+          )}
 
-        {screen === 'result' && (
-          <ResultScreen
-            key="result"
-            questions={quizQuestions}
-            userAnswers={userAnswers}
-            timeSpentSeconds={quizTimeSpent}
-            onRestartQuiz={handleStartQuiz}
-            onGoHome={() => setScreen('home')}
-            settings={settings}
-          />
-        )}
+          {screen === 'quiz' && (
+            <QuizScreen
+              key="quiz"
+              questions={quizQuestions}
+              currentQuestionIndex={currentQuestionIndex}
+              userAnswers={userAnswers}
+              onSelectOption={handleSelectOption}
+              onNextQuestion={handleNextQuestion}
+              onPrevQuestion={handlePrevQuestion}
+              onSubmitQuiz={handleSubmitQuiz}
+              onExitQuiz={() => setScreen('home')}
+              settings={settings}
+              bookmarkedIds={stats.bookmarkedQuestionIds}
+              onToggleBookmark={handleToggleBookmark}
+            />
+          )}
 
-        {screen === 'admin_login' && (
-          <AdminLogin
-            key="admin_login"
-            onLoginSuccess={() => setScreen('admin_dashboard')}
-            onBackToApp={() => setScreen('home')}
-          />
-        )}
+          {screen === 'question' && (
+            <QuestionCategoryScreen
+              key="question_categories"
+              categories={categoriesList}
+              onSelectBookQuestion={handleStartQuestionModeForBook}
+            />
+          )}
 
-        {screen === 'admin_dashboard' && (
-          <AdminDashboard
-            key="admin_dashboard"
-            questions={questionsList}
-            categories={categoriesList}
-            features={featuresList}
-            appConfig={appConfig}
-            logs={adminLogs}
-            onLogout={() => setScreen('admin_login')}
-            onBackToApp={() => setScreen('home')}
-            onRefreshData={loadDataFromDatabase}
-            onPreviewFeature={(title, _desc) => setFutureFeatureModal(title)}
-          />
-        )}
-      </AnimatePresence>
+          {screen === 'result' && (
+            <ResultScreen
+              key="result"
+              questions={quizQuestions}
+              userAnswers={userAnswers}
+              timeSpentSeconds={quizTimeSpent}
+              onRestartQuiz={handleStartQuiz}
+              onGoHome={() => setScreen('home')}
+              settings={settings}
+            />
+          )}
+
+          {screen === 'admin_login' && (
+            <AdminLogin
+              key="admin_login"
+              onLoginSuccess={() => setScreen('admin_dashboard')}
+              onBackToApp={() => setScreen('home')}
+            />
+          )}
+
+          {screen === 'admin_dashboard' && (
+            <AdminDashboard
+              key="admin_dashboard"
+              questions={questionsList}
+              categories={categoriesList}
+              features={featuresList}
+              appConfig={appConfig}
+              logs={adminLogs}
+              onLogout={() => setScreen('admin_login')}
+              onBackToApp={() => setScreen('home')}
+              onRefreshData={loadDataFromDatabase}
+              onPreviewFeature={(title, _desc) => setFutureFeatureModal(title)}
+            />
+          )}
+        </AnimatePresence>
+      </div>
+
+      {/* Bottom Navigation Bar */}
+      {isUserScreen && (
+        <BottomNavigation
+          currentScreen={screen === 'categories' ? 'quiz' : screen}
+          onNavigate={(targetScreen) => {
+            if (targetScreen === 'question') {
+              setScreen('question');
+            } else if (targetScreen === 'quiz') {
+              setScreen('categories');
+            } else {
+              setScreen(targetScreen);
+            }
+          }}
+        />
+      )}
 
       {/* Language Selection Modal */}
       <AnimatePresence>
@@ -370,7 +443,7 @@ export default function App() {
               const langStr = String(lang);
               const langCode = langStr === 'Urdu' || langStr === 'ur' ? 'ur' : 'en';
               const langName = langCode === 'ur' ? 'Urdu' : 'English';
-              
+
               i18n.changeLanguage(langCode);
               handleUpdateSettings({ language: langName });
               localStorage.setItem('i18nextLng', langCode);

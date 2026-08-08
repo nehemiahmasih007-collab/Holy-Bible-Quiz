@@ -85,6 +85,7 @@ export type AppScreen =
   | 'splash'
   | 'home'
   | 'quiz'
+  | 'question'
   | 'result'
   | 'settings'
   | 'future_preview'

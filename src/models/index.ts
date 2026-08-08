@@ -25,6 +25,8 @@ export interface Question {
   difficulty?: QuestionDifficulty;
   createdAt?: string;
   updatedAt?: string;
+  type?: 'mcq' | 'text_input';
+  correctAnswerText?: string;
 }
 
 export interface QuizSettings {
@@ -131,8 +133,9 @@ export type AppScreen =
   | 'splash'
   | 'home'
   | 'quiz'
+  | 'question'
   | 'result'
   | 'settings'
-  | 'future_preview'
+  | 'categories'
   | 'admin_login'
   | 'admin_dashboard';

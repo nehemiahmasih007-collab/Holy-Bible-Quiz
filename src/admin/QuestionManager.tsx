@@ -12,12 +12,13 @@ import {
   AlertTriangle,
   Sparkles,
   Upload,
-  Download,
   ChevronLeft,
   ChevronRight,
   FileSpreadsheet,
   FileCode,
   FileText,
+  Type,
+  ListOrdered,
 } from 'lucide-react';
 import { Question, Category } from '../models';
 import { storageService } from '../services/storageService';
@@ -57,12 +58,14 @@ export const QuestionManager: React.FC<QuestionManagerProps> = ({
   } | null>(null);
 
   // Form inputs
+  const [questionType, setQuestionType] = useState<'mcq' | 'text_input'>('mcq'); // NAYA FEATURE
   const [formQuestion, setFormQuestion] = useState('');
   const [optionA, setOptionA] = useState('');
   const [optionB, setOptionB] = useState('');
   const [optionC, setOptionC] = useState('');
   const [optionD, setOptionD] = useState('');
   const [correctIdx, setCorrectIdx] = useState<number>(0);
+  const [correctAnswerText, setCorrectAnswerText] = useState(''); // NAYA FEATURE: User typed answer
   const [category, setCategory] = useState<string>(categories[0]?.id || 'gospels');
   const [difficulty, setDifficulty] = useState<'easy' | 'medium' | 'hard'>('easy');
   const [language, setLanguage] = useState<'en' | 'ur' | 'hi'>('en');
@@ -72,12 +75,14 @@ export const QuestionManager: React.FC<QuestionManagerProps> = ({
 
   const openAddModal = () => {
     setEditingQuestion(null);
+    setQuestionType('mcq');
     setFormQuestion('');
     setOptionA('');
     setOptionB('');
     setOptionC('');
     setOptionD('');
     setCorrectIdx(0);
+    setCorrectAnswerText('');
     setCategory(categories[0]?.id || 'gospels');
     setDifficulty('easy');
     setLanguage('en');
@@ -87,14 +92,16 @@ export const QuestionManager: React.FC<QuestionManagerProps> = ({
     setIsModalOpen(true);
   };
 
-  const openEditModal = (q: Question) => {
+  const openEditModal = (q: any) => {
     setEditingQuestion(q);
+    setQuestionType(q.type || 'mcq');
     setFormQuestion(q.question);
-    setOptionA(q.options[0]);
-    setOptionB(q.options[1]);
-    setOptionC(q.options[2]);
-    setOptionD(q.options[3]);
-    setCorrectIdx(q.correctOptionIndex);
+    setOptionA(q.options?.[0] || '');
+    setOptionB(q.options?.[1] || '');
+    setOptionC(q.options?.[2] || '');
+    setOptionD(q.options?.[3] || '');
+    setCorrectIdx(q.correctOptionIndex || 0);
+    setCorrectAnswerText(q.correctAnswerText || '');
     setCategory(q.category);
     setDifficulty(q.difficulty || 'easy');
     setLanguage(q.language || 'en');
@@ -106,9 +113,23 @@ export const QuestionManager: React.FC<QuestionManagerProps> = ({
 
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!formQuestion.trim() || !optionA.trim() || !optionB.trim() || !optionC.trim() || !optionD.trim()) {
-      setFormError('Please fill in the question and all four answer options.');
+
+    if (!formQuestion.trim()) {
+      setFormError('Please fill in the question text.');
       return;
+    }
+
+    // Validation Check based on Question Type
+    if (questionType === 'mcq') {
+      if (!optionA.trim() || !optionB.trim() || !optionC.trim() || !optionD.trim()) {
+        setFormError('Please fill in all four answer options for MCQ.');
+        return;
+      }
+    } else {
+      if (!correctAnswerText.trim()) {
+        setFormError('Please provide the correct text answer that user needs to type.');
+        return;
+      }
     }
 
     if (!hintRef.trim()) {
@@ -125,28 +146,23 @@ export const QuestionManager: React.FC<QuestionManagerProps> = ({
 
     const expText = explanation.trim() || hintRef.trim();
 
+    const payload = {
+      type: questionType,
+      question: formQuestion.trim(),
+      options: questionType === 'mcq' ? optionsTuple : [],
+      correctOptionIndex: questionType === 'mcq' ? correctIdx : 0,
+      correctAnswerText: questionType === 'text_input' ? correctAnswerText.trim() : '',
+      category,
+      difficulty,
+      language,
+      hintReference: hintRef.trim(),
+      explanationHint: expText,
+    };
+
     if (editingQuestion) {
-      await storageService.updateQuestionAsync(editingQuestion.id, {
-        question: formQuestion.trim(),
-        options: optionsTuple,
-        correctOptionIndex: correctIdx,
-        category,
-        difficulty,
-        language,
-        hintReference: hintRef.trim(),
-        explanationHint: expText,
-      });
+      await storageService.updateQuestionAsync(editingQuestion.id, payload as any);
     } else {
-      await storageService.addQuestionAsync({
-        question: formQuestion.trim(),
-        options: optionsTuple,
-        correctOptionIndex: correctIdx,
-        category,
-        difficulty,
-        language,
-        hintReference: hintRef.trim(),
-        explanationHint: expText,
-      });
+      await storageService.addQuestionAsync(payload as any);
     }
 
     setIsModalOpen(false);
@@ -201,7 +217,7 @@ export const QuestionManager: React.FC<QuestionManagerProps> = ({
   const filteredQuestions = questions.filter((q) => {
     const matchesSearch =
       q.question.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      q.options.some((opt) => opt.toLowerCase().includes(searchTerm.toLowerCase()));
+      (q.options && q.options.some((opt) => opt.toLowerCase().includes(searchTerm.toLowerCase())));
     const matchesCat = categoryFilter === 'all' || q.category === categoryFilter;
     const matchesDiff = difficultyFilter === 'all' || q.difficulty === difficultyFilter;
     const matchesLang = languageFilter === 'all' || q.language === languageFilter;
@@ -269,8 +285,8 @@ export const QuestionManager: React.FC<QuestionManagerProps> = ({
         </div>
 
         {/* Search & Category Filter Controls */}
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
-          <div className="relative flex items-center col-span-1 sm:col-span-1">
+        <div className="grid grid-cols-1 sm:grid-cols-4 gap-2">
+          <div className="relative flex items-center col-span-1">
             <Search className="w-4 h-4 text-slate-400 absolute left-3 pointer-events-none" />
             <input
               type="text"
@@ -348,9 +364,11 @@ export const QuestionManager: React.FC<QuestionManagerProps> = ({
             No questions found matching current criteria.
           </div>
         ) : (
-          pageQuestions.map((q, idx) => {
+          pageQuestions.map((q: any, idx) => {
             const globalIndex = (currentPage - 1) * pageSize + idx + 1;
             const catObj = categories.find((c) => c.id === q.category);
+            const isTextInput = q.type === 'text_input';
+
             return (
               <div
                 key={q.id}
@@ -366,6 +384,15 @@ export const QuestionManager: React.FC<QuestionManagerProps> = ({
                         {q.question}
                       </h4>
                       <div className="flex items-center gap-2 mt-1 flex-wrap">
+                        {/* Type Badge */}
+                        <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full border ${
+                          isTextInput 
+                            ? 'bg-purple-500/10 text-purple-400 border-purple-500/30' 
+                            : 'bg-blue-500/10 text-blue-400 border-blue-500/30'
+                        }`}>
+                          {isTextInput ? '✍️ Type Answer' : '🔘 MCQ'}
+                        </span>
+
                         <span className="text-[10px] font-semibold bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 px-2 py-0.5 rounded-full">
                           {catObj?.name || q.category}
                         </span>
@@ -375,11 +402,6 @@ export const QuestionManager: React.FC<QuestionManagerProps> = ({
                         <span className="text-[10px] font-bold text-indigo-600 dark:text-indigo-400 bg-indigo-400/10 px-2 py-0.5 rounded-full border border-indigo-400/20 uppercase">
                           {q.language || 'en'}
                         </span>
-                        {q.createdAt && (
-                          <span className="text-[10px] text-slate-400 font-mono">
-                            ID: {q.id}
-                          </span>
-                        )}
                       </div>
                     </div>
                   </div>
@@ -417,27 +439,36 @@ export const QuestionManager: React.FC<QuestionManagerProps> = ({
                   </div>
                 </div>
 
-                {/* 4 Options Grid Preview */}
-                <div className="grid grid-cols-2 gap-1.5 mt-1 text-[11px]">
-                  {q.options.map((opt, oIdx) => {
-                    const isCorrect = oIdx === q.correctOptionIndex;
-                    return (
-                      <div
-                        key={oIdx}
-                        className={`p-1.5 rounded-xl border flex items-center justify-between ${
-                          isCorrect
-                            ? 'bg-emerald-50 dark:bg-emerald-950/40 border-emerald-300 dark:border-emerald-800 text-emerald-800 dark:text-emerald-300 font-bold'
-                            : 'bg-slate-50 dark:bg-slate-900/50 border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-400'
-                        }`}
-                      >
-                        <span className="truncate">
-                          {['A', 'B', 'C', 'D'][oIdx]}: {opt}
-                        </span>
-                        {isCorrect && <CheckCircle2 className="w-3 h-3 text-emerald-500 shrink-0 ml-1" />}
-                      </div>
-                    );
-                  })}
-                </div>
+                {/* Display Answers/Options based on Question Type */}
+                {isTextInput ? (
+                  <div className="mt-1 p-2 bg-purple-500/10 border border-purple-500/20 rounded-xl text-xs text-purple-300 flex items-center gap-2">
+                    <span className="font-bold">Correct Typed Answer:</span>
+                    <span className="font-mono bg-slate-900/80 px-2 py-0.5 rounded text-amber-400">
+                      {q.correctAnswerText || 'N/A'}
+                    </span>
+                  </div>
+                ) : (
+                  <div className="grid grid-cols-2 gap-1.5 mt-1 text-[11px]">
+                    {q.options?.map((opt: string, oIdx: number) => {
+                      const isCorrect = oIdx === q.correctOptionIndex;
+                      return (
+                        <div
+                          key={oIdx}
+                          className={`p-1.5 rounded-xl border flex items-center justify-between ${
+                            isCorrect
+                              ? 'bg-emerald-50 dark:bg-emerald-950/40 border-emerald-300 dark:border-emerald-800 text-emerald-800 dark:text-emerald-300 font-bold'
+                              : 'bg-slate-50 dark:bg-slate-900/50 border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-400'
+                          }`}
+                        >
+                          <span className="truncate">
+                            {['A', 'B', 'C', 'D'][oIdx]}: {opt}
+                          </span>
+                          {isCorrect && <CheckCircle2 className="w-3 h-3 text-emerald-500 shrink-0 ml-1" />}
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
 
                 {/* Hint Reference Badge */}
                 <div className="mt-2 flex items-center gap-1.5 px-2.5 py-1 rounded-xl bg-amber-500/10 border border-amber-500/20 text-[11px] text-amber-700 dark:text-amber-300">
@@ -567,6 +598,38 @@ export const QuestionManager: React.FC<QuestionManagerProps> = ({
             )}
 
             <form onSubmit={handleSave} className="flex flex-col gap-3 text-xs">
+              
+              {/* NAYA FEATURE: Select Question Type Toggle */}
+              <div>
+                <label className="font-bold text-slate-700 dark:text-slate-300 block mb-1">
+                  Question Format / Format type *
+                </label>
+                <div className="grid grid-cols-2 gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setQuestionType('mcq')}
+                    className={`p-2.5 rounded-xl border font-bold flex items-center justify-center gap-2 transition ${
+                      questionType === 'mcq'
+                        ? 'bg-amber-500/20 border-amber-500 text-amber-400'
+                        : 'bg-slate-800 border-slate-700 text-slate-400'
+                    }`}
+                  >
+                    <ListOrdered className="w-4 h-4" /> Multiple Choice (MCQ)
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setQuestionType('text_input')}
+                    className={`p-2.5 rounded-xl border font-bold flex items-center justify-center gap-2 transition ${
+                      questionType === 'text_input'
+                        ? 'bg-purple-500/20 border-purple-500 text-purple-400'
+                        : 'bg-slate-800 border-slate-700 text-slate-400'
+                    }`}
+                  >
+                    <Type className="w-4 h-4" /> User Type Answer
+                  </button>
+                </div>
+              </div>
+
               <div>
                 <label className="font-bold text-slate-700 dark:text-slate-300 block mb-1">
                   Question Text *
@@ -581,38 +644,57 @@ export const QuestionManager: React.FC<QuestionManagerProps> = ({
                 />
               </div>
 
-              {/* 4 Answer Options */}
-              <div className="flex flex-col gap-2">
-                <label className="font-bold text-slate-700 dark:text-slate-300 block">
-                  Answer Options (Select radio for Correct Answer) *
-                </label>
+              {/* Conditional Answer Options Input based on Question Type */}
+              {questionType === 'mcq' ? (
+                /* 4 Answer Options for MCQ */
+                <div className="flex flex-col gap-2">
+                  <label className="font-bold text-slate-700 dark:text-slate-300 block">
+                    Answer Options (Select radio for Correct Answer) *
+                  </label>
 
-                {[
-                  { label: 'Option A', state: optionA, setter: setOptionA, idx: 0 },
-                  { label: 'Option B', state: optionB, setter: setOptionB, idx: 1 },
-                  { label: 'Option C', state: optionC, setter: setOptionC, idx: 2 },
-                  { label: 'Option D', state: optionD, setter: setOptionD, idx: 3 },
-                ].map((item) => (
-                  <div key={item.idx} className="flex items-center gap-2">
-                    <input
-                      type="radio"
-                      name="correctOption"
-                      checked={correctIdx === item.idx}
-                      onChange={() => setCorrectIdx(item.idx)}
-                      className="w-4 h-4 text-amber-500 accent-amber-500 cursor-pointer"
-                    />
-                    <span className="font-bold text-slate-500 w-16">{item.label}:</span>
-                    <input
-                      type="text"
-                      value={item.state}
-                      onChange={(e) => item.setter(e.target.value)}
-                      placeholder="e.g. Zimri"
-                      className="flex-1 p-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white focus:outline-none focus:border-amber-400"
-                      required
-                    />
-                  </div>
-                ))}
-              </div>
+                  {[
+                    { label: 'Option A', state: optionA, setter: setOptionA, idx: 0 },
+                    { label: 'Option B', state: optionB, setter: setOptionB, idx: 1 },
+                    { label: 'Option C', state: optionC, setter: setOptionC, idx: 2 },
+                    { label: 'Option D', state: optionD, setter: setOptionD, idx: 3 },
+                  ].map((item) => (
+                    <div key={item.idx} className="flex items-center gap-2">
+                      <input
+                        type="radio"
+                        name="correctOption"
+                        checked={correctIdx === item.idx}
+                        onChange={() => setCorrectIdx(item.idx)}
+                        className="w-4 h-4 text-amber-500 accent-amber-500 cursor-pointer"
+                      />
+                      <span className="font-bold text-slate-500 w-16">{item.label}:</span>
+                      <input
+                        type="text"
+                        value={item.state}
+                        onChange={(e) => item.setter(e.target.value)}
+                        placeholder="e.g. Zimri"
+                        className="flex-1 p-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white focus:outline-none focus:border-amber-400"
+                      />
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                /* Single Text Box for User Type Answer Feature */
+                <div className="p-3 bg-purple-500/10 border border-purple-500/30 rounded-2xl flex flex-col gap-2">
+                  <label className="font-bold text-purple-300 block text-xs">
+                    Correct Text Answer (User must type this answer) *
+                  </label>
+                  <input
+                    type="text"
+                    value={correctAnswerText}
+                    onChange={(e) => setCorrectAnswerText(e.target.value)}
+                    placeholder="Type exact answer (e.g., Genesis 1:1 or Jerusalem)"
+                    className="w-full p-2.5 bg-slate-900 border border-purple-500/40 rounded-xl text-white focus:outline-none focus:border-purple-400"
+                  />
+                  <p className="text-[10px] text-purple-200/70">
+                    💡 User app mein ek text input field dikhegi, user jo likhega wo is answer se match kiya jayega.
+                  </p>
+                </div>
+              )}
 
               {/* Hint Reference Input Field */}
               <div>
@@ -644,12 +726,9 @@ export const QuestionManager: React.FC<QuestionManagerProps> = ({
                   placeholder='e.g. "Read 1 Kings 16:15–20 to learn why Zimri ruled only seven days."'
                   className="w-full p-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white focus:outline-none focus:border-amber-400 text-xs"
                 />
-                <p className="text-[10px] text-slate-400 mt-1">
-                  💡 Optional study tip or passage direction for the user. Do NOT display Bible verse text.
-                </p>
               </div>
 
-              <div className="grid grid-cols-2 gap-2 pt-1">
+              <div className="grid grid-cols-3 gap-2 pt-1">
                 <div>
                   <label className="font-bold text-slate-700 dark:text-slate-300 block mb-1">Category</label>
                   <select
@@ -685,8 +764,8 @@ export const QuestionManager: React.FC<QuestionManagerProps> = ({
                     onChange={(e) => setLanguage(e.target.value as 'en' | 'ur' | 'hi')}
                     className="w-full p-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white focus:outline-none focus:border-amber-400"
                   >
+                    <option value="ur">Urdu (اردو)</option>
                     <option value="en">English (EN)</option>
-                    <option value="ur">Urdu (UR)</option>
                     <option value="hi">Hindi (HI)</option>
                   </select>
                 </div>
@@ -730,25 +809,38 @@ export const QuestionManager: React.FC<QuestionManagerProps> = ({
                 {previewQuestion.question}
               </h4>
 
-              <div className="flex flex-col gap-2 pt-1 text-xs">
-                {previewQuestion.options.map((opt, i) => (
-                  <div
-                    key={i}
-                    className={`p-2.5 rounded-xl border flex items-center justify-between ${
-                      i === previewQuestion.correctOptionIndex
-                        ? 'bg-amber-400/20 border-amber-400 text-amber-600 dark:text-amber-400 font-bold'
-                        : 'bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300'
-                    }`}
-                  >
-                    <span>
-                      {['A', 'B', 'C', 'D'][i]}: {opt}
+              {previewQuestion.type === 'text_input' ? (
+                <div className="flex flex-col gap-2 pt-1 text-xs">
+                  <div className="p-3 rounded-xl border border-purple-500/40 bg-purple-500/10 text-purple-300">
+                    <span className="block text-[10px] text-purple-400 font-bold mb-1">
+                      Expected Answer (Type-in):
                     </span>
-                    {i === previewQuestion.correctOptionIndex && (
-                      <CheckCircle2 className="w-4 h-4 text-amber-500" />
-                    )}
+                    <span className="font-mono text-white text-sm font-bold">
+                      {previewQuestion.correctAnswerText || 'N/A'}
+                    </span>
                   </div>
-                ))}
-              </div>
+                </div>
+              ) : (
+                <div className="flex flex-col gap-2 pt-1 text-xs">
+                  {previewQuestion.options?.map((opt, i) => (
+                    <div
+                      key={i}
+                      className={`p-2.5 rounded-xl border flex items-center justify-between ${
+                        i === previewQuestion.correctOptionIndex
+                          ? 'bg-amber-400/20 border-amber-400 text-amber-600 dark:text-amber-400 font-bold'
+                          : 'bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300'
+                      }`}
+                    >
+                      <span>
+                        {['A', 'B', 'C', 'D'][i]}: {opt}
+                      </span>
+                      {i === previewQuestion.correctOptionIndex && (
+                        <CheckCircle2 className="w-4 h-4 text-amber-500" />
+                      )}
+                    </div>
+                  ))}
+                </div>
+              )}
 
               {(previewQuestion.hintReference || previewQuestion.explanationHint) && (
                 <div className="mt-1 p-2.5 bg-amber-500/10 border border-amber-500/30 rounded-xl text-xs text-amber-800 dark:text-amber-300 flex items-center gap-2">

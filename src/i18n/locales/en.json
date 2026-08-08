@@ -1,7 +1,7 @@
 {
   "common": {
-    "app_name": "Bible Quiz",
-    "welcome": "Welcome to Bible Quiz",
+    "app_name": "Bible Quiz App",
+    "welcome": "Welcome to Bible Quiz App",
     "start_quiz": "Start Quiz",
     "settings": "Settings",
     "admin": "Admin",
@@ -50,7 +50,11 @@
     "submit": "Submit Quiz",
     "exit": "Exit Quiz",
     "continue": "Continue Quiz",
-    "confirm_exit": "Are you sure you want to exit the quiz?"
+    "confirm_exit": "Are you sure you want to exit the quiz?",
+    "type_answer_placeholder": "Type your answer here...",
+    "submit_answer": "Submit Answer",
+    "correct_answer": "Correct Answer",
+    "your_answer": "Your Answer"
   },
   "result": {
     "title": "Quiz Results",
